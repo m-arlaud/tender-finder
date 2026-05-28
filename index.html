@@ -2515,20 +2515,25 @@ async function fetchTenderNed() {
   const TN_URL = cfg.tenderNedProxy || cfg.tenderNedUrl || 'https://lt-tenderned-proxy.malcolm-arlaud.workers.dev';
 
   try {
-    // Récupérer les 200 dernières publications (4 pages × 50)
-    // et filtrer côté client sur les mots-clés IT
-    // Note : ne pas utiliser URLSearchParams pour le sort — la virgule serait encodée en %2C
-    // ce que l'API TenderNed ne supporte pas (retourne 400)
-    const res = await fetch(TN_URL + '?page=0&size=200&sort=publicatieDatum,desc', {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (!data.content) throw new Error('no content');
+    // ⚠️ L'API TenderNed limite size à 100 maximum (retourne 400 si > 100)
+    // On fait 2 requêtes en parallèle pour récupérer 200 publications.
+    // Le worker passe sort=publicatieDatum,desc côté serveur (sans encoder la virgule).
+    const fetchPage = function(page) {
+      return fetch(TN_URL + '?page=' + page + '&size=100', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+      }).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+    };
+
+    const results = await Promise.all([fetchPage(0), fetchPage(1)]);
+    const allContent = results.flatMap(function(d) { return d.content || []; });
+    if (!allContent.length) throw new Error('no content');
 
     // Filtrer les offres IT en vérifiant titre + description
-    const itItems = data.content.filter(function(pub) {
+    const itItems = allContent.filter(function(pub) {
       var text = ((pub.aanbestedingNaam || '') + ' ' + (pub.opdrachtBeschrijving || '')).toLowerCase();
       return IT_KEYWORDS_NL.some(function(kw) { return text.indexOf(kw) !== -1; });
     });
