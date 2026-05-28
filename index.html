@@ -430,7 +430,23 @@ header::after {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 150;
+  background: transparent;
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+  padding: 10px 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 16px;
   margin-bottom: 18px;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.toolbar.is-stuck {
+  background: rgba(17, 22, 36, 0.58);
+  border-bottom-color: rgba(255,255,255,0.14);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.28);
 }
 .toolbar-search {
   position: relative;
@@ -578,6 +594,16 @@ header::after {
   transition: border-color 0.12s, background 0.12s;
   outline: none;
   min-width: 0;
+}
+.csel-label {
+  display: inline-flex;
+  align-items: center;
+}
+.csel-label .fi,
+.csel-label .ms-sm,
+.csel-option .fi,
+.csel-option .ms-sm {
+  margin-right: 6px;
 }
 .csel-trigger:hover { border-color: var(--accent); }
 .custom-select.open .csel-trigger { border-color: var(--accent); }
@@ -777,27 +803,25 @@ body.dark .card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
   border-radius: 2px;
   flex-shrink: 0;
 }
-/* badge-type : pill marché 96×32 — largeur fixe, texte centré (multiples de 8/32) */
+/* badge-type : pill marché — largeur hug content (padding adaptatif) */
 .badge-type {
   background: var(--green-bg);
   color: var(--green);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 96px;
   height: 32px;
-  padding: 0 8px;
+  padding: 0 12px;
   border-radius: 8px;
   font-size: 10px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   flex-shrink: 0;
 }
 .badge-cpv     { background: var(--purple-bg); color: var(--purple); }
 .badge-tenderned { background: rgba(255,165,0,0.15); color: #f5a623; }
-.btn-tenderned { background: rgba(255,165,0,0.15); color: #f5a623; border: 1px solid rgba(255,165,0,0.3); }
-.btn-tenderned:hover { background: rgba(255,165,0,0.25); }
+/* btn-tenderned : orange TenderNed NL (#CC5200 normal / hover #FF6700) */
+.btn-tenderned { background: #CC5200; color: #ffffff !important; border-color: rgba(255,255,255,0.10); }
+.btn-tenderned:hover { background: #FF6700; color: #ffffff !important; border-color: transparent; }
 .badge-boamp   { background: var(--amber-bg);  color: var(--amber); }
 .badge-ted     { background: var(--accent-bg); color: var(--accent); }
 
@@ -842,12 +866,33 @@ body.dark .card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
 
 
 /* Bouton source (TED / BOAMP) */
+/* btn-source : design Figma — pill 64px avec inner border 4px rgba(255,255,255,0.10) */
+/* Au hover : suppression de l'inner border pour effet de "remplissage" */
 .btn-source {
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--sans); font-size: 11px; font-weight: 600;
-  padding: 8px 16px; border-radius: var(--radius);
-  text-decoration: none; cursor: pointer; white-space: nowrap;
-  border: none; transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: "Roboto Flex", var(--sans);
+  font-variation-settings: 'wdth' 150, 'wght' 600;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  height: 48px;
+  padding: 8px 16px;
+  border-radius: 32px;
+  border: 4px solid rgba(255, 255, 255, 0.10);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #ffffff;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-source:hover {
+  border-color: transparent;
 }
 
 .card-footer a:hover { text-decoration: underline; }
@@ -1192,13 +1237,17 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
 .icon-btn.fav   { color: #f5c518; font-size: 18px; }
 
 /* -------- boutons source toujours blanc -------- */
-.btn-ted        { background: #3d6ecf; color: #ffffff !important; }
-.btn-ted:hover  { background: #4c88ff; color: #ffffff !important; text-decoration: none; }
-.btn-boamp      { background: #000091; color: #ffffff !important; }
+/* btn-ted : TED EU vert (#2B8000 normal / #339900 hover) */
+.btn-ted        { background: #2B8000; color: #ffffff !important; border-color: rgba(255,255,255,0.10); }
+.btn-ted:hover  { background: #339900; color: #ffffff !important; text-decoration: none; border-color: transparent; }
 
+/* btn-boamp : BOAMP FR bleu marine (#000091 normal / #1212FF hover) */
+.btn-boamp      { background: #000091; color: #ffffff !important; border-color: rgba(255,255,255,0.10); }
+.btn-boamp:hover { background: #1212FF; color: #ffffff !important; text-decoration: none; border-color: transparent; }
+
+/* btn-vergabe : Vergabe NRW vert (conservé) */
 .btn-vergabe      { background: #00703C; color: #ffffff !important; }
 .btn-vergabe:hover { background: #00994f; color: #ffffff !important; text-decoration: none; }
-.btn-boamp:hover { background: #1212ff; color: #ffffff !important; text-decoration: none; }
 
 /* -------- dates supercondensed -------- */
 .card-dates { display: inline-flex; align-items: center; gap: 2px; }
@@ -1207,7 +1256,13 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
 /* card-title défini plus haut : 24px */
 
 /* -------- bouton favori toolbar -------- */
-#btnFavs { gap: 5px; }
+#btnFavs {
+  gap: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
 #btnFavs.active { background: var(--amber-bg); color: var(--amber); border-color: var(--amber); }
 
 
@@ -1266,7 +1321,7 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
   /* Le bouton Favoris garde une largeur fixe, ne s'étire pas */
   .toolbar-filters .btn#btnFavs {
     flex-shrink: 0;
-    flex: 0 0 auto;
+    flex: 0 0 40px;
   }
 }
 
@@ -1313,8 +1368,8 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
 
   /* Favoris : ferré à gauche */
   .toolbar-filters .btn#btnFavs {
-    width: 100%;
-    justify-content: flex-start;
+    width: 40px;
+    justify-content: center;
   }
 
   .csel-dropdown {
@@ -1534,7 +1589,7 @@ body.dark .drawer-input { background: var(--bg); }
     </div>
     <!-- L2 : logo + subtitle centrés -->
     <div class="header-logo-row">
-      <a class="logo" href="/" onclick="location.reload();return false;" title="Retour à l'accueil">tender<span>finder</span></a>
+      <a class="logo" href="/" onclick="location.reload();return false;" title="Retour a l'accueil">tender<span>finder</span></a>
       <div class="logo-subtitle">IT EU PUBLIC TENDERS &amp; PROCUREMENT OFFERS</div>
     </div>
     <!-- L3 : mise à jour + stats centrés dans le header -->
@@ -1546,8 +1601,8 @@ body.dark .drawer-input { background: var(--bg); }
     <!-- L4 : boutons centrés -->
     <div class="header-btns-row">
       <button class="ctrl-btn lang-toggle" id="btnLang" onclick="toggleLang()" aria-label="Changer la langue">FR</button>
-      <button class="ctrl-btn dark-toggle" id="btnDark" onclick="toggleDark()" title="Dark mode" aria-label="Basculer le mode sombre" style="display:none"><span class="ms" aria-hidden="true">light_mode</span></button>
-      <button class="ctrl-btn" onclick="openDrawer()" title="Settings" aria-label="Ouvrir les réglages"><span class="ms" aria-hidden="true">tune</span></button>
+      <button class="ctrl-btn dark-toggle" id="btnDark" onclick="toggleDark()" title="Mode sombre" aria-label="Basculer le mode sombre" style="display:none"><span class="ms" aria-hidden="true">light_mode</span></button>
+      <button class="ctrl-btn" id="btnSettings" onclick="openDrawer()" title="Reglages" aria-label="Ouvrir les reglages"><span class="ms" aria-hidden="true">tune</span></button>
     </div>
   </header>
 
@@ -1584,6 +1639,15 @@ body.dark .drawer-input { background: var(--bg); }
           <div class="csel-option" data-value="deadline">Deadline proche</div>
         </div>
       </div>
+      <div class="custom-select" id="csel-cpv">
+        <button class="csel-trigger" type="button">
+          <span class="csel-label"><span class="ms ms-sm">tag</span> Tous les CPV</span>
+          <span class="ms csel-arrow">expand_more</span>
+        </button>
+        <div class="csel-dropdown">
+          <div class="csel-option selected" data-value=""><span class="ms ms-sm">tag</span> Tous les CPV</div>
+        </div>
+      </div>
       <div class="custom-select" id="csel-source">
         <button class="csel-trigger" type="button">
           <span class="csel-label"><span class="ms ms-sm">language</span> Tous les portails</span>
@@ -1591,14 +1655,14 @@ body.dark .drawer-input { background: var(--bg); }
         </button>
         <div class="csel-dropdown">
           <div class="csel-option selected" data-value=""><span class="ms ms-sm">language</span> Tous les portails</div>
-          <div class="csel-option" data-value="TED"><span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> TED Europa</div>
-          <div class="csel-option" data-value="BOAMP"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> BOAMP France</div>
+          <div class="csel-option" data-value="TED"><span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> TED EU</div>
+          <div class="csel-option" data-value="BOAMP"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> BOAMP FR</div>
           <div class="csel-option" data-value="TENDERNED"><span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> TenderNed NL</div>
           <div class="csel-option disabled" data-value="VERGABE" disabled><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Vergabe NRW<span style="font-size:11px;opacity:0.5">(bientôt)</span></div>
           <div class="csel-option disabled" data-value="DTVP" disabled><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> DTVP<span style="font-size:11px;opacity:0.5">(bientôt)</span></div>
         </div>
       </div>
-      <button class="btn" id="btnFavs" onclick="toggleFavsOnly()" aria-label="Filtrer les favoris" style="flex-shrink:0"><span id="favStar"><span class="ms">star</span></span> <span id="favLabel">Favoris</span></button>
+      <button class="btn" id="btnFavs" onclick="toggleFavsOnly()" aria-label="Filtrer les favoris" title="Favoris" style="flex-shrink:0"><span id="favStar"><span class="ms">star</span></span></button>
       </div>
     </div>
   </div>
@@ -1619,47 +1683,89 @@ const TRANSLATIONS = {
   fr: {
     search: 'Rechercher…',
     allCountries: 'Tous les pays',
-    allSources: 'TED + BOAMP',
-    tedOnly: 'TED uniquement',
-    boampOnly: 'BOAMP uniquement',
+    allSources: 'Tous les portails',
     newest: 'Plus récent',
     amount: 'Montant ↓',
-    deadline: 'Deadline proche',
+    deadline: 'Date limite proche',
+    allCpv: 'Tous les CPV',
+    cpv72: '72 - Services informatiques',
+    cpv62: '62 - Services informatiques',
+    cpv48: '48 - Logiciels et systemes d\'information',
     favorites: 'favoris',
     favBtn: 'Favoris',
     refresh: 'Actualiser',
     offers: 'offres',
     countries: 'pays',
-    subtitle: 'IT EU PUBLIC TENDERS &amp; PROCUREMENT OFFERS',
+    subtitle: 'APPELS D\'OFFRES PUBLICS IT EN EUROPE',
     updatedAt: 'Mis à jour',
     live: '● live',
     demo: '● démo',
     noResults: 'Aucune offre trouvée pour ces critères.',
     noFavs: 'Aucun favori pour le moment.',
     addFavBtn: 'Ajouter une offre en favori dès maintenant',
+    allPortals: 'Tous les portails',
+    tedPortal: 'TED UE',
+    boampPortal: 'BOAMP FR',
+    tenderNedPortal: 'TenderNed NL',
+    vergabeSoon: '(bientot)',
+    dtvpSoon: '(bientot)',
+    loading: 'Chargement',
+    refreshTitle: 'Actualiser (vider le cache)',
+    refreshAria: 'Rechercher et actualiser',
+    favAria: 'Filtrer les favoris',
+    favTitle: 'Favoris',
+    settingsAria: 'Ouvrir les reglages',
+    settingsTitle: 'Reglages',
+    darkAria: 'Basculer le mode sombre',
+    darkTitle: 'Mode sombre',
+    homeTitle: 'Retour a l\'accueil',
+    sourceTedBtn: 'TED UE',
+    sourceBoampBtn: 'BOAMP FR',
+    sourceTenderNedBtn: 'TenderNed NL',
     buyer: '',
   },
   en: {
     search: 'Search…',
     allCountries: 'All countries',
-    allSources: 'TED + BOAMP',
-    tedOnly: 'TED only',
-    boampOnly: 'BOAMP only',
+    allSources: 'All portals',
     newest: 'Most recent',
     amount: 'Amount ↓',
     deadline: 'Deadline soon',
+    allCpv: 'All CPV',
+    cpv72: '72 - IT services',
+    cpv62: '62 - IT services',
+    cpv48: '48 - Software and information systems',
     favorites: 'favorites',
     favBtn: 'Favorites',
     refresh: 'Refresh',
     offers: 'tenders',
     countries: 'countries',
-    subtitle: 'IT EU PUBLIC TENDERS &amp; PROCUREMENT OFFERS',
+    subtitle: 'EU PUBLIC IT TENDERS &amp; PROCUREMENT OFFERS',
     updatedAt: 'Updated',
     live: '● live',
     demo: '● demo',
     noResults: 'No tenders found for these criteria.',
     noFavs: 'No favourites yet.',
     addFavBtn: 'Add a tender to your favourites',
+    allPortals: 'All portals',
+    tedPortal: 'TED EU',
+    boampPortal: 'BOAMP FR',
+    tenderNedPortal: 'TenderNed NL',
+    vergabeSoon: '(coming soon)',
+    dtvpSoon: '(coming soon)',
+    loading: 'Loading',
+    refreshTitle: 'Refresh (clear cache)',
+    refreshAria: 'Search and refresh',
+    favAria: 'Filter favorites',
+    favTitle: 'Favorites',
+    settingsAria: 'Open settings',
+    settingsTitle: 'Settings',
+    darkAria: 'Toggle dark mode',
+    darkTitle: 'Dark mode',
+    homeTitle: 'Return to home',
+    sourceTedBtn: 'TED EU',
+    sourceBoampBtn: 'BOAMP FR',
+    sourceTenderNedBtn: 'TenderNed NL',
     buyer: '',
   }
 };
@@ -1685,20 +1791,26 @@ function setLang(l) {
       'NL': '<span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> ' + (l === 'fr' ? 'Pays-Bas' : 'Netherlands'),
       'DE': '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> ' + (l === 'fr' ? 'Allemagne' : 'Germany'),
       'BE': '<span class="fi fi-be" style="border-radius:2px;flex-shrink:0"></span> ' + (l === 'fr' ? 'Belgique' : 'Belgium'),
-      'EU': '<span class="ms ms-sm">language</span> ' + (l === 'fr' ? 'Autres EU' : 'Other EU'),
+      'EU': '<span class="ms ms-sm">language</span> ' + (l === 'fr' ? 'Autres UE' : 'Other EU'),
     },
     'csel-sort': {
       'date': i18n.newest,
       'amount': i18n.amount,
       'deadline': i18n.deadline,
     },
+    'csel-cpv': {
+      '':   '<span class="ms ms-sm">tag</span> ' + i18n.allCpv,
+      '72': i18n.cpv72,
+      '62': i18n.cpv62,
+      '48': i18n.cpv48,
+    },
     'csel-source': {
-      '':          '🌍 ' + (l === 'fr' ? 'Tous les portails' : 'All portals'),
-      'TED':       '<span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> TED Europa',
-      'BOAMP':     '<span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> BOAMP France',
+      '':          '<span class="ms ms-sm">language</span> ' + i18n.allPortals,
+      'TED':       '<span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> ' + i18n.tedPortal,
+      'BOAMP':     '<span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> ' + i18n.boampPortal,
       'VERGABE':   '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Vergabe NRW',
-      'TENDERNED': '<span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> TenderNed' + (l === 'fr' ? '(bientôt)' : '(coming soon)'),
-      'DTVP':      '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> DTVP'       + (l === 'fr' ? '(bientôt)' : '(coming soon)'),
+      'TENDERNED': '<span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> ' + i18n.tenderNedPortal,
+      'DTVP':      '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> DTVP ' + i18n.dtvpSoon,
     },
   };
 
@@ -1717,8 +1829,33 @@ function setLang(l) {
     }
   });
 
-  document.getElementById('favLabel').textContent = i18n.favBtn;
-  // btnRefresh : icône seule, pas de texte i18n
+  rebuildCpvToolbarSelect();
+
+  document.querySelector('.logo-subtitle').innerHTML = i18n.subtitle;
+  const logoLink = document.querySelector('.logo');
+  if (logoLink) logoLink.title = i18n.homeTitle;
+  const refreshBtn = document.getElementById('btnRefresh');
+  if (refreshBtn) {
+    refreshBtn.title = i18n.refreshTitle;
+    refreshBtn.setAttribute('aria-label', i18n.refreshAria);
+  }
+  const favBtn = document.getElementById('btnFavs');
+  if (favBtn) {
+    favBtn.title = i18n.favTitle;
+    favBtn.setAttribute('aria-label', i18n.favAria);
+  }
+  const settingsBtn = document.getElementById('btnSettings');
+  if (settingsBtn) {
+    settingsBtn.title = i18n.settingsTitle;
+    settingsBtn.setAttribute('aria-label', i18n.settingsAria);
+  }
+  const darkBtn = document.getElementById('btnDark');
+  if (darkBtn) {
+    darkBtn.title = i18n.darkTitle;
+    darkBtn.setAttribute('aria-label', i18n.darkAria);
+  }
+  const loader = document.querySelector('#cards .loader');
+  if (loader) loader.textContent = i18n.loading;
   updateStats();
   renderCards();
 }
@@ -1785,9 +1922,19 @@ window.addEventListener('DOMContentLoaded', () => {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 1200);
   }
+  setLang(lang);
   loadSettings();
   updateCpvPills();
   fetchTenders();
+
+  const toolbar = document.querySelector('.toolbar');
+  if (toolbar) {
+    const syncToolbarStickyState = () => {
+      toolbar.classList.toggle('is-stuck', window.scrollY > 2);
+    };
+    syncToolbarStickyState();
+    window.addEventListener('scroll', syncToolbarStickyState, { passive: true });
+  }
 });
 
 /* ============================================================
@@ -1962,7 +2109,7 @@ async function fetchBOAMP() {
     where: `(${where}) AND nature IN ("APPEL_OFFRE","MARCHE","ACCORD_CADRE")`,
     order_by: 'dateparution DESC',
     limit: 100,
-    select: 'idweb,objet,nomacheteur,dateparution,datelimitereponse,nature_libelle,code_departement,nature,descripteur_code',
+    select: 'idweb,objet,nomacheteur,dateparution,datelimitereponse,nature_libelle,code_departement,nature,descripteur_code,descripteur_libelle,procedure_libelle,url_avis,gestion,donnees',
   });
 
   try {
@@ -2098,6 +2245,32 @@ function mapType(td) {
   return 'Avis';
 }
 
+function localizeTenderType(typeLabel) {
+  const raw = String(typeLabel || '').trim();
+  if (!raw) return raw;
+  const key = raw.toLowerCase();
+  const dict = {
+    'avis': { fr: 'Avis', en: 'Notice' },
+    'avis de marché': { fr: 'Avis de marche', en: 'Contract notice' },
+    'marche': { fr: 'Marche', en: 'Contract' },
+    'marché': { fr: 'Marche', en: 'Contract' },
+    'appel d\'offres': { fr: 'Appel d\'offres', en: 'Call for tenders' },
+    'attribution': { fr: 'Attribution', en: 'Award' },
+    'pré-info': { fr: 'Pre-info', en: 'Prior information' },
+    'pre-info': { fr: 'Pre-info', en: 'Prior information' },
+    'contrat': { fr: 'Contrat', en: 'Contract' },
+    'consultation marché': { fr: 'Consultation marche', en: 'Market consultation' },
+    'consultation marche': { fr: 'Consultation marche', en: 'Market consultation' },
+    'rectification': { fr: 'Rectification', en: 'Correction' },
+    'résiliation': { fr: 'Resiliation', en: 'Termination' },
+    'resiliation': { fr: 'Resiliation', en: 'Termination' },
+    'avis d\'attribution': { fr: 'Avis d\'attribution', en: 'Award notice' },
+  };
+  const entry = dict[key];
+  if (entry) return lang === 'fr' ? entry.fr : entry.en;
+  return raw;
+}
+
 
 /* ============================================================
    PARSE BOAMP notice
@@ -2107,27 +2280,43 @@ function mapType(td) {
 // Sortie : objet {id, title, buyer, country, deadline, published, url, ...}
 // Note : BOAMP n'expose pas de lien PDF direct — pdfUrl est toujours null.
 function parseBOAMP(r) {
+  const parseJsonSafe = (raw) => {
+    if (!raw || typeof raw !== 'string') return null;
+    try { return JSON.parse(raw); } catch(_) { return null; }
+  };
+  const donnees = parseJsonSafe(r.donnees) || {};
+  const gestion = parseJsonSafe(r.gestion) || {};
+  const cpvFromDonnees = (((donnees.OBJET || {}).CPV) || [])
+    .map((item) => String((item || {}).PRINCIPAL || '').trim())
+    .filter(Boolean);
+  const cpvLabels = Array.isArray(r.descripteur_libelle) ? r.descripteur_libelle.filter(Boolean) : [];
   const dept = Array.isArray(r.code_departement) ? r.code_departement[0] : (r.code_departement || '');
-  const cpvArr = r.descripteur_code || [];
+  const cpvArr = cpvFromDonnees.length ? cpvFromDonnees : (r.descripteur_code || []);
   const cpv = cpvArr.length ? String(cpvArr[0]).slice(0, 2) : '72';
   const deadline = r.datelimitereponse ? r.datelimitereponse.slice(0, 10) : '';
   const published = r.dateparution ? r.dateparution.slice(0, 10) : '';
   const idweb = r.idweb || null;
+  const objetComplet = ((donnees.OBJET || {}).OBJET_COMPLET || '').trim();
+  const reference = (((donnees.CONDITION_ADMINISTRATIVE || {}).REFERENCE_MARCHE) || (gestion.REFERENCE || {}).IDWEB || idweb || '').trim();
+  const procedure = (r.procedure_libelle || '').trim();
   return {
     id:        'BOAMP-' + (idweb || Math.random().toString(36).slice(2)),
     title:     r.objet || 'Sans titre',
     buyer:     r.nomacheteur || '',
-    desc:      '',
+    desc:      objetComplet,
     country:   'FR',
     deadline, published,
     amount:    null,
-    url:       idweb ? `https://www.boamp.fr/avis/detail/${idweb}` : null,
+    url:       r.url_avis || (idweb ? `https://www.boamp.fr/avis/detail/${idweb}` : null),
     pdfUrl:    null, // BOAMP ne fournit pas de PDF direct — accès via profil acheteur
-    cpv, cpvFull: r.descripteur_code || [],
+    cpv, cpvFull: cpvArr,
+    cpvLabels,
     type:      r.nature_libelle || 'Avis',
     source:    'BOAMP',
     dept,
-    gestion: '', reference: '', procedure: '',
+    gestion: r.gestion || '',
+    reference,
+    procedure,
   };
 }
 
@@ -2142,6 +2331,7 @@ function applyFilters() {
   const country = (typeof cselValues !== 'undefined' ? cselValues.country : '') || '';
   const source  = (typeof cselValues !== 'undefined' ? cselValues.source  : '') || '';
   const sort    = (typeof cselValues !== 'undefined' ? cselValues.sort    : 'date') || 'date';
+  const cpv     = (typeof cselValues !== 'undefined' ? cselValues.cpv     : '') || '';
 
   filtered = allTenders.filter(t => {
     if (favsOnly && !favorites.includes(t.id)) return false;
@@ -2151,6 +2341,7 @@ function applyFilters() {
       return false;
     }
     if (source && t.source !== source) return false;
+    if (cpv && !tenderMatchesCpv(t, cpv)) return false;
     if (q) {
       const hay = (t.title + ' ' + (t.buyer||'') + ' ' + t.country).toLowerCase();
       if (!hay.includes(q)) return false;
@@ -2215,7 +2406,13 @@ function renderCard(t) {
   const isFav      = favorites.includes(t.id);
   const flagHtml   = renderFlag(t.country);
   const countryLbl = COUNTRIES[t.country] || t.country;
-  const sourceLbl  = t.source || 'TED';
+  const localizedType = localizeTenderType(t.type);
+  // Mapping source → label affiché sur le bouton (TenderNed NL, BOAMP FR, TED EU)
+  const sourceLbl  = t.source === 'BOAMP'
+    ? i18n.sourceBoampBtn
+    : t.source === 'TENDERNED'
+      ? i18n.sourceTenderNedBtn
+      : i18n.sourceTedBtn;
   const buyerHtml  = t.buyer
     ? `<div class="card-buyer">${t.buyer}</div>`
     : '';
@@ -2273,8 +2470,8 @@ function renderCard(t) {
           ${t.buyer ? `<span class="card-buyer">${t.buyer}</span>` : ''}
         </div>
         <div class="card-badges">
+          <span class="badge badge-type">${localizedType}</span>
           <span class="badge badge-country" title="${countryLbl}">${flagHtml}</span>
-          <span class="badge badge-type">${t.type}</span>
           </div>
       </div>
       <div class="card-title">${t.title}</div>
@@ -2357,19 +2554,61 @@ function getMockData() {
 }
 
 /* -------- custom selects init -------- */
-const cselValues = { country: '', sort: 'date', source: '' };
+const cselValues = { country: '', sort: 'date', cpv: '', source: '' };
+
+function normalizeCpvCode(raw) {
+  return String(raw || '').replace(/\D/g, '').slice(0, 8);
+}
+
+function tenderMatchesCpv(tender, selectedCpv) {
+  var selected = normalizeCpvCode(selectedCpv);
+  if (!selected) return true;
+  var cpvFull = Array.isArray(tender.cpvFull) ? tender.cpvFull : [];
+  if (cpvFull.some(function(code) { return normalizeCpvCode(code) === selected; })) return true;
+  return String(tender.cpv || '').slice(0, 2) === selected.slice(0, 2);
+}
+
+function rebuildCpvToolbarSelect() {
+  var wrap = document.getElementById('csel-cpv');
+  if (!wrap) return;
+  var dropdown = wrap.querySelector('.csel-dropdown');
+  var label = wrap.querySelector('.csel-label');
+  if (!dropdown || !label) return;
+
+  var selected = cselValues.cpv || '';
+  var allText = '<span class="ms ms-sm">tag</span> ' + i18n.allCpv;
+  var codes = (cfg.cpv || '')
+    .split(',')
+    .map(function(code) { return normalizeCpvCode(code); })
+    .filter(Boolean)
+    .filter(function(code, idx, arr) { return arr.indexOf(code) === idx; });
+
+  var options = ['<div class="csel-option' + (selected ? '' : ' selected') + '" data-value="">' + allText + '</div>'];
+  codes.forEach(function(code) {
+    var labelTxt = CPV_LABELS[code] || 'Code CPV inconnu';
+    options.push('<div class="csel-option' + (selected === code ? ' selected' : '') + '" data-value="' + code + '">' + code + ' - ' + labelTxt + '</div>');
+  });
+  dropdown.innerHTML = options.join('');
+
+  if (selected && codes.indexOf(selected) === -1) {
+    cselValues.cpv = '';
+    selected = '';
+  }
+  var selectedOpt = dropdown.querySelector('.csel-option.selected') || dropdown.querySelector('.csel-option');
+  if (selectedOpt) label.innerHTML = selectedOpt.innerHTML;
+}
 
 function initCustomSelects() {
   const configs = [
     { id: 'csel-country', key: 'country' },
     { id: 'csel-sort',    key: 'sort'    },
+    { id: 'csel-cpv',     key: 'cpv'     },
     { id: 'csel-source',  key: 'source'  },
   ];
   configs.forEach(({ id, key }) => {
     const wrap = document.getElementById(id);
     if (!wrap) return;
     const trigger = wrap.querySelector('.csel-trigger');
-    const opts    = wrap.querySelectorAll('.csel-option:not(.disabled)');
 
     trigger.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2378,15 +2617,16 @@ function initCustomSelects() {
       wrap.classList.toggle('open');
     });
 
-    opts.forEach(opt => {
-      opt.addEventListener('click', () => {
-        cselValues[key] = opt.dataset.value || '';
-        wrap.querySelector('.csel-label').innerHTML = opt.innerHTML;
-        wrap.querySelectorAll('.csel-option').forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        wrap.classList.remove('open');
-        applyFilters();
-      });
+    const dropdown = wrap.querySelector('.csel-dropdown');
+    if (dropdown) dropdown.addEventListener('click', (e) => {
+      const opt = e.target.closest('.csel-option');
+      if (!opt || opt.classList.contains('disabled')) return;
+      cselValues[key] = opt.dataset.value || '';
+      wrap.querySelector('.csel-label').innerHTML = opt.innerHTML;
+      wrap.querySelectorAll('.csel-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      wrap.classList.remove('open');
+      applyFilters();
     });
   });
 
@@ -2435,6 +2675,7 @@ function loadSettings() {
   } catch(e) { cfg = { ...DEFAULT_SETTINGS }; }
   PAGE_SIZE = (Number.isInteger(cfg.pageSize) && cfg.pageSize > 0) ? cfg.pageSize : 10;
   applySettingsToUI();
+  rebuildCpvToolbarSelect();
 }
 
 function applySettingsToUI() {
@@ -2475,6 +2716,7 @@ function resetSettings() {
   // Réinitialiser aussi les custom selects
   cselValues.country = '';
   cselValues.sort    = 'date';
+  cselValues.cpv     = '';
   cselValues.source  = '';
   document.querySelectorAll('.custom-select').forEach(wrap => {
     const firstOpt = wrap.querySelector('.csel-option:not(.disabled)');
@@ -2484,6 +2726,7 @@ function resetSettings() {
       wrap.querySelector('.csel-label').innerHTML = firstOpt.innerHTML;
     }
   });
+  rebuildCpvToolbarSelect();
   applySettingsToUI();
   applyFilters();
 }
@@ -2615,6 +2858,7 @@ function openTenderDrawer(safeId) {
 
   var flagHtml = renderFlag(t.country);
   var countryLbl = COUNTRIES[t.country] || t.country || '';
+  var localizedType = localizeTenderType(t.type);
   var fmt = function(s) {
     if (!s) return '';
     var parts = s.slice(0,10).split('-');
@@ -2646,7 +2890,7 @@ function openTenderDrawer(safeId) {
   }
   if (t.type) {
     html += '<div class="tender-section"><span class="tender-section-label">' + (isFr ? 'Type' : 'Type') + '</span>';
-    html += '<span class="tender-section-value">' + t.type + '</span></div>';
+    html += '<span class="tender-section-value">' + localizedType + '</span></div>';
   }
   if (t.published) {
     html += '<div class="tender-section"><span class="tender-section-label">' + (isFr ? 'Publication' : 'Published') + '</span>';
@@ -2683,6 +2927,10 @@ function openTenderDrawer(safeId) {
     html += '<div class="tender-section"><span class="tender-section-label">Codes CPV</span>';
     html += '<span class="tender-section-value">' + t.cpvFull.join(' · ') + '</span></div>';
   }
+  if (t.cpvLabels && t.cpvLabels.length) {
+    html += '<div class="tender-section"><span class="tender-section-label">' + (isFr ? 'Descripteurs' : 'Descriptors') + '</span>';
+    html += '<span class="tender-section-value">' + t.cpvLabels.join(' · ') + '</span></div>';
+  }
 
   // Description
   if (t.desc) {
@@ -2697,7 +2945,17 @@ function openTenderDrawer(safeId) {
   var pdfLabel = isFr ? 'Aperçu PDF' : 'PDF Preview';
   var fHtml = '<div class="tender-actions">';
   if (t.url) {
-    fHtml += '<a class="btn btn-source ' + (t.source === 'BOAMP' ? 'btn-boamp' : 'btn-ted') + '" href="' + t.url + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + (t.source || 'TED') + ' ↗</a>';
+    var drawerSourceCls = (t.source === 'BOAMP')
+      ? 'btn-boamp'
+      : (t.source === 'TENDERNED')
+        ? 'btn-tenderned'
+        : 'btn-ted';
+    var drawerSourceLbl = (t.source === 'BOAMP')
+      ? i18n.sourceBoampBtn
+      : (t.source === 'TENDERNED')
+        ? i18n.sourceTenderNedBtn
+        : i18n.sourceTedBtn;
+    fHtml += '<a class="btn btn-source ' + drawerSourceCls + '" href="' + t.url + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + drawerSourceLbl + ' ↗</a>';
   }
   if (t.pdfUrl) {
     fHtml += '<a class="btn btn-source btn-pdf" href="' + t.pdfUrl + '" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="ms" style="font-size:14px;vertical-align:-2px">picture_as_pdf</span> ' + pdfLabel + '</a>';
@@ -2844,6 +3102,7 @@ function updateCpvPills() {
 
 function applyAndClose() {
   saveSettings();
+  rebuildCpvToolbarSelect();
   closeDrawer();
   updateCpvPills();
   clearCache();
@@ -2980,11 +3239,11 @@ function parseVergabe(hit) {
    TOAST QUEUE SYSTEM
    ============================================================ */
 const ERROR_DOCS = {
-  'TED':        { title: 'TED Europa inaccessible',  msg: 'Le worker Cloudflare ne répond pas ou la clé API est expirée.', link: 'https://docs.ted.europa.eu/eforms/latest/reference/code-lists/cpv.html', label: 'Documentation TED API v3' },
-  'BOAMP':      { title: 'BOAMP inaccessible',        msg: "L'API BOAMP est indisponible ou le réseau bloque la requête (CORS).", link: 'https://www.boamp.fr/api/explore/v2.1/console/', label: 'Console BOAMP API' },
-  'TenderNed':  { title: 'TenderNed inaccessible', msg: 'Erreur API Pays-Bas.', link: 'https://www.tenderned.nl/info/swagger', label: 'Documentation TenderNed' },
+  'TED':        { title: 'TED EU inaccessible',  msg: 'Le worker Cloudflare ne répond pas ou la clé API est expirée.', link: 'https://docs.ted.europa.eu/eforms/latest/reference/code-lists/cpv.html', label: 'Documentation TED EU API v3' },
+  'BOAMP':      { title: 'BOAMP FR inaccessible',        msg: "L'API BOAMP est indisponible ou le réseau bloque la requête (CORS).", link: 'https://www.boamp.fr/api/explore/v2.1/console/', label: 'Console BOAMP API' },
+  'TenderNed':  { title: 'TenderNed NL inaccessible', msg: 'Erreur API Pays-Bas.', link: 'https://www.tenderned.nl/info/swagger', label: 'Documentation TenderNed NL' },
   'Vergabe NRW':{ title: 'Vergabe NRW inaccessible',  msg: 'API non accessible publiquement — en cours d\'intégration.', link: 'https://www.vergabe.nrw.de', label: 'Vergabe NRW' },
-  'TenderNed':  { title: 'TenderNed inaccessible',    msg: 'Les credentials HTTP Basic Auth ne sont pas encore configurés.', link: 'https://www.tenderned.nl/info/swagger/', label: 'Documentation TenderNed API' },
+  'TenderNed':  { title: 'TenderNed NL inaccessible',    msg: 'Les credentials HTTP Basic Auth ne sont pas encore configurés.', link: 'https://www.tenderned.nl/info/swagger/', label: 'Documentation TenderNed NL API' },
 };
 
 const _toastQueue   = [];  // { type, title, msg, link, label, duration }
@@ -3070,7 +3329,7 @@ function showSuccessToast(counts) {
     ted:     isFr ? 'TED Europa'            : 'TED Europa',
     boamp:   isFr ? 'BOAMP France'          : 'BOAMP France',
     vergabe: isFr ? 'Vergabe NRW Allemagne' : 'Vergabe NRW Germany',
-    tender:  isFr ? 'TenderNed Pays-Bas'    : 'TenderNed Netherlands',
+    tender:  isFr ? 'TenderNed NL'    : 'TenderNed NL',
   };
 
   const parts = Object.entries(counts)
@@ -3139,14 +3398,14 @@ function _showCopyToast() {
     <div>
       <div class="drawer-section-title"><span class="ms ms-sm">language</span> Sources actives</div>
       <div class="drawer-toggle-row">
-        <span class="drawer-toggle-label"><span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> <strong>TED Europa</strong></span>
+        <span class="drawer-toggle-label"><span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> <strong>TED EU</strong></span>
         <label class="toggle-switch">
           <input type="checkbox" id="cfg-src-ted" checked onchange="saveSettings()">
           <span class="toggle-slider"></span>
         </label>
       </div>
       <div class="drawer-toggle-row">
-        <span class="drawer-toggle-label"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> <strong>BOAMP France</strong></span>
+        <span class="drawer-toggle-label"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> <strong>BOAMP FR</strong></span>
         <label class="toggle-switch">
           <input type="checkbox" id="cfg-src-boamp" checked onchange="saveSettings()">
           <span class="toggle-slider"></span>
