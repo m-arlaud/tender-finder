@@ -89,12 +89,44 @@
 .settings-modal.open {
   display: flex;
 }
-.settings-modal-header {
+.settings-modal-/* header : padding-bottom réduit (boutons rapprochés de la recherche) */
+header {
   display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+/* settings-modal-header : titre à gauche, bouton × à droite sur une ligne */
+.settings-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 20px 24px 16px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
+/* actions header modal : reset CPV + fermer */
+.settings-modal-header-actions { display: flex; align-items: center; gap: 8px; }
+.btn-reset-cpv-header {
+  all: unset;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+.btn-reset-cpv-header:hover { background: rgba(255,255,255,0.08); color: var(--text); }
 .settings-modal-title {
   font-family: var(--sans);
   font-variation-settings: 'wdth' 151, 'wght' 700 !important;
@@ -357,10 +389,24 @@ header::after {
   left: 50%;
   transform: translateX(-50%);
 }
-/* L1 : pill status */
+/* L1 : pill LIVE centrée sur la page, réglages juste après */
 .header-status-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+.header-status-side--left { grid-column: 1; }
+#apiStatus {
+  grid-column: 2;
+  justify-self: center;
+}
+.header-status-side--right {
+  grid-column: 3;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding-left: 8px;
 }
 /* L2 : logo */
 .header-logo-row {
@@ -369,6 +415,37 @@ header::after {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+}
+/* logo-wrap : conteneur relatif pour le drapeau langue en badge */
+.logo-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+}
+/* lang-flag-btn : drapeau langue collé en haut à droite du logo (style copyright) */
+.lang-flag-btn {
+  position: absolute;
+  top: -4px;
+  right: -20px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: transform 0.12s, opacity 0.12s;
+  opacity: 0.85;
+}
+.lang-flag-btn:hover { transform: scale(1.15); opacity: 1; }
+.lang-flag-btn .fi {
+  width: 16px;
+  height: 12px;
+  border-radius: 2px;
+  display: block;
 }
 /* L3 : infos */
 .header-info-row {
@@ -1161,6 +1238,54 @@ body.dark .amount-max { color: var(--amber); background: var(--amber-bg); }
 }
 
 .api-status { font-size: 11px; }
+/* ctrl-btn-mini : bouton réglages compact 24×24 à côté de la pill status */
+.ctrl-btn-mini {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: background 0.12s, color 0.12s;
+}
+.ctrl-btn-mini:hover { background: var(--border); }
+.ctrl-btn-mini .ms { font-size: 14px; }
+body.dark .ctrl-btn-mini {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  color: #ffffff;
+}
+body.dark .ctrl-btn-mini:hover { background: rgba(255,255,255,0.18); }
+/* badge-tip : tooltip CSS instantané au survol (data-tip) — fiable, contrairement au title natif */
+.badge-tip { position: relative; cursor: help; }
+.badge-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1a1d27;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-variation-settings: 'wdth' 100, 'wght' 500;
+  white-space: nowrap;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.badge-tip:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 .api-status.ok  { color: var(--green); }
 .api-status.err { color: var(--danger); }
 
@@ -1246,8 +1371,9 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
 .btn-boamp:hover { background: #1212FF; color: #ffffff !important; text-decoration: none; border-color: transparent; }
 
 /* btn-vergabe : Vergabe NRW vert (conservé) */
-.btn-vergabe      { background: #00703C; color: #ffffff !important; }
-.btn-vergabe:hover { background: #00994f; color: #ffffff !important; text-decoration: none; }
+/* btn-vergabe : Vergabe NRW DE (#6E1C38 normal / #882345 hover) */
+.btn-vergabe      { background: #6E1C38; color: #ffffff !important; }
+.btn-vergabe:hover { background: #882345; color: #ffffff !important; text-decoration: none; }
 
 /* -------- dates supercondensed -------- */
 .card-dates { display: inline-flex; align-items: center; gap: 2px; }
@@ -1530,7 +1656,9 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
   gap: 8px;
   flex-shrink: 0;
 }
-.drawer-footer .btn { flex: 1; justify-content: center; }
+/* boutons footer : hauteur 40px (multiple de 8) */
+.drawer-footer .btn,
+.settings-modal-footer .btn { flex: 1; justify-content: center; height: 40px; box-sizing: border-box; }
 
 /* drawer-close : bouton × utilisé dans settings modal et tender drawer */
 .drawer-close {
@@ -1550,6 +1678,8 @@ body.dark .drawer-input { background: var(--bg); }
 
 
 </style>
+  <!-- JSZip pour extraire les ZIP Vergabe NRW Open Data -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -1583,13 +1713,21 @@ body.dark .drawer-input { background: var(--bg); }
 <div class="shell" role="main" style="position:relative;z-index:1;">
 
   <header role="banner" aria-label="TenderFinder">
-    <!-- L1 : status pill seule, centrée -->
+    <!-- L1 : status pill + bouton réglages (24px) côte à côte -->
     <div class="header-status-row">
+      <div class="header-status-side--left" aria-hidden="true"></div>
       <span id="apiStatus" class="api-status"></span>
+      <div class="header-status-side--right">
+        <button class="ctrl-btn-mini" id="btnSettings" onclick="openDrawer()" title="Reglages" aria-label="Ouvrir les reglages"><span class="ms" aria-hidden="true">tune</span></button>
+        <button class="ctrl-btn-mini dark-toggle" id="btnDark" onclick="toggleDark()" title="Mode sombre" aria-label="Basculer le mode sombre" style="display:none"><span class="ms" aria-hidden="true">light_mode</span></button>
+      </div>
     </div>
-    <!-- L2 : logo + subtitle centrés -->
+    <!-- L2 : logo (avec drapeau langue en badge) + subtitle centrés -->
     <div class="header-logo-row">
-      <a class="logo" href="/" onclick="location.reload();return false;" title="Retour a l'accueil">tender<span>finder</span></a>
+      <div class="logo-wrap">
+        <a class="logo" href="/" onclick="location.reload();return false;" title="Retour a l'accueil">tender<span>finder</span></a>
+        <button class="lang-flag-btn" id="btnLang" onclick="toggleLang()" aria-label="Changer la langue" title="Changer la langue"><span class="fi fi-fr" id="langFlag"></span></button>
+      </div>
       <div class="logo-subtitle">IT EU PUBLIC TENDERS &amp; PROCUREMENT OFFERS</div>
     </div>
     <!-- L3 : mise à jour + stats centrés dans le header -->
@@ -1597,12 +1735,6 @@ body.dark .drawer-input { background: var(--bg); }
       <span id="last-update" class="header-update"></span>
       <span class="info-sep">·</span>
       <span id="stats" class="header-stats" aria-live="polite"></span>
-    </div>
-    <!-- L4 : boutons centrés -->
-    <div class="header-btns-row">
-      <button class="ctrl-btn lang-toggle" id="btnLang" onclick="toggleLang()" aria-label="Changer la langue">FR</button>
-      <button class="ctrl-btn dark-toggle" id="btnDark" onclick="toggleDark()" title="Mode sombre" aria-label="Basculer le mode sombre" style="display:none"><span class="ms" aria-hidden="true">light_mode</span></button>
-      <button class="ctrl-btn" id="btnSettings" onclick="openDrawer()" title="Reglages" aria-label="Ouvrir les reglages"><span class="ms" aria-hidden="true">tune</span></button>
     </div>
   </header>
 
@@ -1658,7 +1790,7 @@ body.dark .drawer-input { background: var(--bg); }
           <div class="csel-option" data-value="TED"><span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> TED EU</div>
           <div class="csel-option" data-value="BOAMP"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> BOAMP FR</div>
           <div class="csel-option" data-value="TENDERNED"><span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> TenderNed NL</div>
-          <div class="csel-option disabled" data-value="VERGABE" disabled><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Vergabe NRW<span style="font-size:11px;opacity:0.5">(bientôt)</span></div>
+          <div class="csel-option" data-value="VERGABE"><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Vergabe NRW DE</div>
           <div class="csel-option disabled" data-value="DTVP" disabled><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> DTVP<span style="font-size:11px;opacity:0.5">(bientôt)</span></div>
         </div>
       </div>
@@ -1716,12 +1848,15 @@ const TRANSLATIONS = {
     favTitle: 'Favoris',
     settingsAria: 'Ouvrir les reglages',
     settingsTitle: 'Reglages',
+    resetCpvBtn: 'Réinitialiser',
+    resetCpvAria: 'Réinitialiser les codes CPV par défaut',
     darkAria: 'Basculer le mode sombre',
     darkTitle: 'Mode sombre',
     homeTitle: 'Retour a l\'accueil',
     sourceTedBtn: 'TED UE',
     sourceBoampBtn: 'BOAMP FR',
     sourceTenderNedBtn: 'TenderNed NL',
+    sourceVergabeBtn: 'Vergabe NRW',
     buyer: '',
   },
   en: {
@@ -1740,7 +1875,7 @@ const TRANSLATIONS = {
     refresh: 'Refresh',
     offers: 'tenders',
     countries: 'countries',
-    subtitle: 'EU PUBLIC IT TENDERS &amp; PROCUREMENT OFFERS',
+    subtitle: 'EU PUBLIC PROCUREMENT OFFERS',
     updatedAt: 'Updated',
     live: '● live',
     demo: '● demo',
@@ -1760,12 +1895,15 @@ const TRANSLATIONS = {
     favTitle: 'Favorites',
     settingsAria: 'Open settings',
     settingsTitle: 'Settings',
+    resetCpvBtn: 'Default settings',
+    resetCpvAria: 'Reset CPV codes to default',
     darkAria: 'Toggle dark mode',
     darkTitle: 'Dark mode',
     homeTitle: 'Return to home',
     sourceTedBtn: 'TED EU',
     sourceBoampBtn: 'BOAMP FR',
     sourceTenderNedBtn: 'TenderNed NL',
+    sourceVergabeBtn: 'Vergabe NRW',
     buyer: '',
   }
 };
@@ -1779,8 +1917,9 @@ function toggleLang() {
 function setLang(l) {
   lang = l;
   i18n = TRANSLATIONS[l];
-  const btn = document.getElementById('btnLang');
-  if (btn) { btn.textContent = l.toUpperCase(); btn.classList.add('active'); }
+  // Mettre à jour le drapeau langue (fr → drapeau FR, en → drapeau GB)
+  const langFlag = document.getElementById('langFlag');
+  if (langFlag) { langFlag.className = 'fi fi-' + (l === 'fr' ? 'fr' : 'gb'); }
   document.getElementById('search').placeholder = i18n.search;
 
   // Mettre à jour les custom selects : labels des options + label actif
@@ -1854,8 +1993,20 @@ function setLang(l) {
     darkBtn.title = i18n.darkTitle;
     darkBtn.setAttribute('aria-label', i18n.darkAria);
   }
+  const resetCpvBtn = document.getElementById('btnResetCpvLabel');
+  if (resetCpvBtn) resetCpvBtn.textContent = i18n.resetCpvBtn;
+  const resetCpvHeader = document.getElementById('btnResetCpv');
+  if (resetCpvHeader) {
+    resetCpvHeader.title = i18n.resetCpvAria;
+    resetCpvHeader.setAttribute('aria-label', i18n.resetCpvAria);
+  }
   const loader = document.querySelector('#cards .loader');
   if (loader) loader.textContent = i18n.loading;
+  // Re-traduire le libellé de dernière mise à jour
+  const luEl = document.getElementById('last-update');
+  if (luEl && _lastUpdateTime) {
+    luEl.innerHTML = (l === 'en' ? 'Last update · ' : 'Dernière mise à jour · ') + _lastUpdateTime;
+  }
   updateStats();
   renderCards();
 }
@@ -1906,6 +2057,7 @@ let favorites  = (() => {
 let favsOnly   = false;
 let page       = 0;
 let isLive     = false;
+let _lastUpdateTime = '';  // heure de dernière mise à jour (pour re-traduction langue)
 
 /* ============================================================
    INIT
@@ -1979,7 +2131,7 @@ function setCache(data) {
   } catch(e) {}
 }
 
-// Vide le cache manuellement — appelée par le bouton refresh et applyAndClose().
+// Vide le cache manuellement — appelée par le bouton refresh et après changement CPV.
 // Nécessaire pour forcer un nouveau fetch après changement de settings.
 function clearCache() {
   localStorage.removeItem(CACHE_KEY);
@@ -2035,6 +2187,7 @@ async function fetchTenders() {
     ? '<span class="mode-pill mode-live"><span class="status-dot-wrap"><span class="status-dot-outer"></span><span class="status-dot-inner"></span></span> LIVE</span>'
     : '<span class="mode-pill mode-demo"><span class="status-dot-wrap"><span class="status-dot-outer"></span><span class="status-dot-inner"></span></span> DEMO</span>';
   document.getElementById('apiStatus').innerHTML = _pill;
+  _lastUpdateTime = _time; // mémoriser pour re-traduction au changement de langue
   document.getElementById('last-update').innerHTML = (lang === 'en' ? 'Last update · ' : 'Dernière mise à jour · ') + _time;
 
   applyFilters();
@@ -2245,6 +2398,16 @@ function mapType(td) {
   return 'Avis';
 }
 
+// ── Label court de la règle de passation Vergabe pour le badge des cards ──
+// VGV → VgV, UVGO → UVgO, etc. Sinon retourne le type localisé standard.
+function vergabeBadgeLabel(t) {
+  if (t.source === 'VERGABE' && t.contractingRule) {
+    var map = { 'VGV': 'VgV', 'UVGO': 'UVgO', 'VOB': 'VOB', 'VOL': 'VOL', 'SEKT': 'SektVO' };
+    return map[t.contractingRule] || t.contractingRule;
+  }
+  return localizeTenderType(t.type);
+}
+
 function localizeTenderType(typeLabel) {
   const raw = String(typeLabel || '').trim();
   if (!raw) return raw;
@@ -2406,13 +2569,15 @@ function renderCard(t) {
   const isFav      = favorites.includes(t.id);
   const flagHtml   = renderFlag(t.country);
   const countryLbl = COUNTRIES[t.country] || t.country;
-  const localizedType = localizeTenderType(t.type);
+  const localizedType = vergabeBadgeLabel(t);
   // Mapping source → label affiché sur le bouton (TenderNed NL, BOAMP FR, TED EU)
   const sourceLbl  = t.source === 'BOAMP'
     ? i18n.sourceBoampBtn
     : t.source === 'TENDERNED'
       ? i18n.sourceTenderNedBtn
-      : i18n.sourceTedBtn;
+      : t.source === 'VERGABE'
+        ? i18n.sourceVergabeBtn
+        : i18n.sourceTedBtn;
   const buyerHtml  = t.buyer
     ? `<div class="card-buyer">${t.buyer}</div>`
     : '';
@@ -2445,7 +2610,7 @@ function renderCard(t) {
     return `<div class="card-progress-wrap"><div class="card-progress-bar ${cls}" style="width:${pct}%"></div></div>`;
   })();
 
-  const sourceCls = t.source === 'BOAMP' ? 'btn-boamp' : t.source === 'TENDERNED' ? 'btn-tenderned' : 'btn-ted';
+  const sourceCls = t.source === 'BOAMP' ? 'btn-boamp' : t.source === 'TENDERNED' ? 'btn-tenderned' : t.source === 'VERGABE' ? 'btn-vergabe' : 'btn-ted';
   const sourceBtn = t.url
     ? `<a class="btn-source ${sourceCls}" href="${t.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${sourceLbl} ↗</a>`
     : `<span class="btn-source ${sourceCls}">${sourceLbl}</span>`;
@@ -2654,10 +2819,11 @@ const DEFAULT_SETTINGS = {
   boampUrl:     'https://www.boamp.fr/api/explore/v2.1/catalog/datasets/boamp/records',
   tenderNedUrl:   'https://www.tenderned.nl/papi/tenderned-rs-tns/v2/publicaties',
   tenderNedProxy: 'https://lt-tenderned-proxy.malcolm-arlaud.workers.dev',
+  vergabeProxy:   'https://lt-vergabe-proxy.malcolm-arlaud.workers.dev',
   pageSize:     10,
   srcTed:        true,
   srcBoamp:      true,
-  srcVergabe:    false,
+  srcVergabe:    true,
   srcTenderNed:  true,
 };
 
@@ -2685,6 +2851,8 @@ function applySettingsToUI() {
   const cpvFormatted = cfg.cpv.split(',').map(s => s.trim()).filter(Boolean).join(',\n');
   if (el('cfg-cpv'))       { el('cfg-cpv').value = cpvFormatted; updateCpvPillsSettings(); }
   if (el('cfg-ted-proxy')) el('cfg-ted-proxy').value  = cfg.tedProxy;
+  if (el('cfg-tenderned-proxy')) el('cfg-tenderned-proxy').value = cfg.tenderNedProxy;
+  if (el('cfg-vergabe-proxy'))   el('cfg-vergabe-proxy').value   = cfg.vergabeProxy;
   if (el('cfg-boamp-url')) el('cfg-boamp-url').value  = cfg.boampUrl;
   if (el('cfg-page-size')) el('cfg-page-size').value  = cfg.pageSize;
   if (el('cfg-src-ted'))     el('cfg-src-ted').checked     = cfg.srcTed;
@@ -2702,10 +2870,23 @@ function saveSettings() {
   const _ps = parseInt(el('cfg-page-size')?.value);
   cfg.pageSize = (_ps > 0 && _ps <= 100) ? _ps : DEFAULT_SETTINGS.pageSize;
   PAGE_SIZE = cfg.pageSize;
-  cfg.srcTed     = el('cfg-src-ted')?.checked     ?? true;
-  cfg.srcBoamp   = el('cfg-src-boamp')?.checked   ?? true;
-  cfg.srcVergabe = el('cfg-src-vergabe')?.checked ?? true;
+  if (el('cfg-src-ted'))     cfg.srcTed     = el('cfg-src-ted').checked;
+  if (el('cfg-src-boamp'))   cfg.srcBoamp   = el('cfg-src-boamp').checked;
+  if (el('cfg-src-vergabe')) cfg.srcVergabe = el('cfg-src-vergabe').checked;
+  if (el('cfg-tenderned-proxy')) cfg.tenderNedProxy = el('cfg-tenderned-proxy').value || cfg.tenderNedProxy;
+  if (el('cfg-vergabe-proxy'))   cfg.vergabeProxy   = el('cfg-vergabe-proxy').value || cfg.vergabeProxy;
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(cfg));
+}
+
+// ── Réinitialise UNIQUEMENT les codes CPV à la valeur par défaut ─────────
+// Restaure tous les codes CPV d'origine dans le textarea (sans toucher au reste).
+function resetCpvToDefault() {
+  cfg.cpv = DEFAULT_SETTINGS.cpv;
+  const ta = document.getElementById('cfg-cpv');
+  if (ta) {
+    ta.value = DEFAULT_SETTINGS.cpv.split(',').map(function(s){ return s.trim(); }).filter(Boolean).join(',\n');
+    updateCpvPillsSettings();
+  }
 }
 
 function resetSettings() {
@@ -2890,7 +3071,20 @@ function openTenderDrawer(safeId) {
   }
   if (t.type) {
     html += '<div class="tender-section"><span class="tender-section-label">' + (isFr ? 'Type' : 'Type') + '</span>';
-    html += '<span class="tender-section-value">' + localizedType + '</span></div>';
+    // Type affiché comme un badge-type pill (cohérent avec les cards).
+    // Pour Vergabe NRW : tooltip CSS (Above/Below EU threshold) sur la règle.
+    var badgeLabel = vergabeBadgeLabel(t);
+    var badgeTip = '';
+    if (t.source === 'VERGABE' && t.contractingRule === 'VGV') {
+      badgeTip = 'Above EU threshold';
+    } else if (t.source === 'VERGABE' && t.contractingRule === 'UVGO') {
+      badgeTip = 'Below EU thresholds';
+    }
+    if (badgeTip) {
+      html += '<span class="tender-section-value"><span class="badge badge-type badge-tip" data-tip="' + badgeTip + '">' + badgeLabel + '</span></span></div>';
+    } else {
+      html += '<span class="tender-section-value"><span class="badge badge-type">' + badgeLabel + '</span></span></div>';
+    }
   }
   if (t.published) {
     html += '<div class="tender-section"><span class="tender-section-label">' + (isFr ? 'Publication' : 'Published') + '</span>';
@@ -3100,33 +3294,53 @@ function updateCpvPills() {
     .join('');
 }
 
-function applyAndClose() {
-  saveSettings();
-  rebuildCpvToolbarSelect();
-  closeDrawer();
-  updateCpvPills();
-  clearCache();
-  fetchTenders({force:true}); // relancer avec les nouveaux params
+let _settingsCpvOnOpen = '';
+
+function normalizeCpvSetting(raw) {
+  return String(raw || '')
+    .split(/[,\n]+/)
+    .map(function(s) { return s.trim(); })
+    .filter(Boolean)
+    .sort()
+    .join(',');
 }
 
-// ── Ouvre la modal settings depuis le bas ────────────────────────────────
-// Peuple les champs du formulaire via applySettingsToUI() avant d'ouvrir.
-// ── Ouvre la modal settings (Porsche Design System p-modal) ─────────────
+function refreshAfterCpvChange() {
+  saveSettings();
+  rebuildCpvToolbarSelect();
+  updateCpvPills();
+  clearCache();
+  fetchTenders();
+}
+
 // ── Ouvre la modal settings ──────────────────────────────────────────────
 function openDrawer() {
   applySettingsToUI();
+  _settingsCpvOnOpen = normalizeCpvSetting((document.getElementById('cfg-cpv') || {}).value || cfg.cpv);
   document.getElementById('settingsDrawer').classList.add('open');
   document.getElementById('settingsOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
-// ── Ferme la modal settings et rétablit le scroll du body ───────────────
-// ── Ferme la modal settings ──────────────────────────────────────────────
-// ── Ferme la modal settings ──────────────────────────────────────────────
+// ── Ferme la modal settings ; recharge si les CPV ont changé ─────────────
 function closeDrawer() {
-  document.getElementById('settingsDrawer').classList.remove('open');
+  const drawer = document.getElementById('settingsDrawer');
+  if (!drawer || !drawer.classList.contains('open')) return;
+
+  const cpvNow = normalizeCpvSetting((document.getElementById('cfg-cpv') || {}).value || '');
+  const cpvChanged = cpvNow !== _settingsCpvOnOpen;
+
+  drawer.classList.remove('open');
   document.getElementById('settingsOverlay').classList.remove('open');
   document.body.style.overflow = '';
+
+  if (cpvChanged) {
+    refreshAfterCpvChange();
+  } else {
+    saveSettings();
+    PAGE_SIZE = (Number.isInteger(cfg.pageSize) && cfg.pageSize > 0) ? cfg.pageSize : 10;
+    applyFilters();
+  }
 }
 
 
@@ -3152,28 +3366,73 @@ document.addEventListener('keydown', e => {
    ============================================================ */
 async function fetchVergabe() {
   if (!cfg.srcVergabe) return [];
+  // ── Fetch Vergabe NRW Open Data ────────────────────────────────────────
+  // L'API Vergabe NRW retourne un ZIP quotidien (index.xml + 1 XML par annonce).
+  // On passe par un worker Cloudflare pour le CORS. JSZip décompresse côté client,
+  // DOMParser lit les XML. On filtre SERVICES/DELIVERY puis par mots-clés IT.
+  var VERGABE_PROXY = cfg.vergabeProxy || 'https://lt-vergabe-proxy.malcolm-arlaud.workers.dev';
+
+  var IT_KEYWORDS_DE = [
+    'software', 'it-', 'ict', 'informationstechnik', 'informatik',
+    'datenverarbeitung', 'cloud', 'saas', 'plattform', 'datenbank',
+    'netzwerk', 'cybersecurity', 'digitalisierung', 'rechenzentrum',
+    'server', 'hosting', 'applikation', 'programmierung', 'entwicklung',
+    'system', 'lizenzen', 'microsoft', 'sap', 'erp', 'crm',
+  ];
+
   try {
-    // Construire la query CPV : OR sur les codes de la config
-    const cpvCodes = cfg.cpv.split(',').map(s => s.trim()).filter(Boolean);
-    // L'API supporte q= pour la recherche fulltext Elasticsearch
-    // On filtre par CPV via le champ NOTICE_NAT.OBJECT_CONTRACT.OBJECT_DESCR.CPV_ADDITIONAL.CPV_CODE.CODE.$t
-    // Mais le plus fiable est la recherche par terme sur le champ CPV principal
-    const cpvQuery = cpvCodes.map(c => c.slice(0, 2)).filter((v, i, a) => a.indexOf(v) === i)
-                             .map(prefix => `${prefix}*`).join(' OR ');
+    var res = await fetch(VERGABE_PROXY + '?portal=0');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var zipData = await res.arrayBuffer();
+    if (!window.JSZip) throw new Error('JSZip not loaded');
+    var zip = await JSZip.loadAsync(zipData);
 
-    const params = new URLSearchParams({
-      q: cpvQuery,
-      size: 50,
-      'sort[UPDATED_AT]': 'DESC',
-    });
+    var indexFile = zip.file('index.xml');
+    if (!indexFile) {
+      var files = Object.keys(zip.files);
+      var indexPath = files.find(function(f) { return f.endsWith('index.xml'); });
+      indexFile = indexPath ? zip.file(indexPath) : null;
+    }
+    if (!indexFile) throw new Error('index.xml not found in ZIP');
 
-    const res = await fetch(`${VERGABE_URL}?${params}`, {
-      headers: { 'Accept': 'application/json' }
-    });
-    if (!res.ok) throw new Error(`Vergabe HTTP ${res.status}`);
-    const data = await res.json();
-    const hits = data?.hits?.hits || data?.results || data?.data || [];
-    return hits.map(parseVergabe).filter(Boolean);
+    var indexXml = await indexFile.async('text');
+    var parser = new DOMParser();
+    var indexDoc = parser.parseFromString(indexXml, 'text/xml');
+
+    var notices = Array.from(indexDoc.querySelectorAll('NOTICE'));
+    var serviceNotices = notices.filter(function(n) {
+      var type = (n.querySelector('TYPE_OF_TENDER') || {}).textContent || '';
+      return type === 'SERVICES' || type === 'DELIVERY';
+    }).slice(0, 100);
+
+    var tenders = [];
+    for (var i = 0; i < serviceNotices.length; i++) {
+      var notice = serviceNotices[i];
+      var filename = (notice.querySelector('FILENAME') || {}).textContent || '';
+      var id    = (notice.querySelector('ID') || {}).textContent || '';
+      var scope = (notice.querySelector('SCOPE') || {}).textContent || '';
+      var rule  = (notice.querySelector('CONTRACTING_RULE') || {}).textContent || '';
+      if (!filename) continue;
+
+      var xmlFile = zip.file(filename);
+      if (!xmlFile) {
+        var allFiles = Object.keys(zip.files);
+        var match = allFiles.find(function(f) { return f.endsWith(filename); });
+        xmlFile = match ? zip.file(match) : null;
+      }
+      if (!xmlFile) continue;
+
+      try {
+        var xmlStr = await xmlFile.async('text');
+        var xmlDoc = parser.parseFromString(xmlStr, 'text/xml');
+        var tender = parseVergabeXml(xmlDoc, id, scope, rule);
+        if (!tender) continue;
+        var text = (tender.title + ' ' + tender.desc).toLowerCase();
+        var isIT = IT_KEYWORDS_DE.some(function(kw) { return text.indexOf(kw) !== -1; });
+        if (isIT) tenders.push(tender);
+      } catch(e) { /* XML mal formé — ignorer */ }
+    }
+    return tenders;
   } catch(e) {
     console.warn('[Vergabe NRW]', e.message);
     showErrorToast('Vergabe NRW');
@@ -3181,60 +3440,88 @@ async function fetchVergabe() {
   }
 }
 
-function parseVergabe(hit) {
-  // Les données sont dans hit._source ou directement dans hit
-  const s = hit._source || hit;
-  if (!s) return null;
+// ── Parse un XML individuel Vergabe NRW vers le format interne {tender} ──
+// Supporte le format national (NOTICE_NAT) et le format eForms (UBL).
+function parseVergabeXml(xmlDoc, noticeId, scope, contractingRule) {
+  if (!xmlDoc) return null;
+  var title = '', buyer = '', deadline = '', desc = '', cpv = '72', url = null, published = '';
 
-  // Titre
-  const title = s?.NOTICE_NAT?.OBJECT_CONTRACT?.TITLE_CONTRACT?.$t
-    || s?.title
-    || s?.TITLE
-    || 'Sans titre';
+  var natRoot = xmlDoc.querySelector('NOTICE_NAT');
+  if (natRoot) {
+    title = _xmlText(natRoot, 'OBJECT_CONTRACT > TITLE_CONTRACT');
+    buyer = _xmlText(natRoot, 'CONTRACTING_BODY > ADDRESS_CONTRACTING_BODY > OFFICIALNAME');
+    deadline = _xmlText(natRoot, 'PROCEDURE > DATE_RECEIPT_TENDERS');
+    desc = _xmlText(natRoot, 'OBJECT_CONTRACT > OBJECT_DESCR > SHORT_DESCR > P')
+        || _xmlText(natRoot, 'OBJECT_CONTRACT > SHORT_DESCR > P');
+    var cpvEl = natRoot.querySelector('CPV_MAIN CPV_CODE');
+    cpv = cpvEl ? (cpvEl.getAttribute('CODE') || '72').slice(0, 2) : '72';
+    // Date de publication / ajout (national) — plusieurs noms possibles
+    published = _xmlDate(xmlDoc, ['DATE_DISPATCH_NOTICE', 'DATE_PUB', 'DISPATCH_DATE', 'DATE_PUBLICATION_NOTICE']);
+  } else {
+    title = _xmlText(xmlDoc, 'ProcurementProject > Name')
+         || _xmlText(xmlDoc, 'ProcurementProjectLot > ProcurementProject > Name');
+    buyer = _xmlText(xmlDoc, 'ContractingParty PartyName > Name');
+    deadline = _xmlText(xmlDoc, 'TenderingProcess > TenderSubmissionDeadlinePeriod > EndDate');
+    desc = _xmlText(xmlDoc, 'ProcurementProject > Description')
+        || _xmlText(xmlDoc, 'ProcurementProjectLot > ProcurementProject > Description');
+    var cpvEf = xmlDoc.querySelector('ItemClassificationCode');
+    cpv = cpvEf ? (cpvEf.textContent || '72').slice(0, 2) : '72';
+    // Date d'émission (eForms : cbc:IssueDate)
+    published = _xmlDate(xmlDoc, ['cbc:IssueDate', 'IssueDate']);
+  }
 
-  // Acheteur
-  const buyer = s?.NOTICE_NAT?.CONTRACTING_BODY?.ADDRESS_CONTRACTING_BODY?.OFFICIALNAME?.$t
-    || s?.tendererAddress
-    || s?.buyer
-    || '';
+  if (!title && !buyer) return null;
 
-  // Dates
-  const published = (s?.CREATED_AT || s?.publicationDate || '').slice(0, 10);
-  const deadline   = (s?.NOTICE_NAT?.PROCEDURE?.DATE_RECEIPT_TENDERS?.$t
-    || s?.relevantDate || '').slice(0, 10);
-
-  // CPV
-  const cpvRaw = s?.NOTICE_NAT?.OBJECT_CONTRACT?.CPV_MAIN?.CPV_CODE?.CODE
-    || s?.cpv || '72';
-  const cpv = String(cpvRaw).slice(0, 2);
-
-  // URL
-  const url = s?.url
-    || (hit._id ? `https://www.vergabe.nrw.de/VMPCenter/company/announcements/detail/${hit._id}` : null);
-
-  // Type
-  const type = s?.type || s?.NOTICE_NAT?.OBJECT_CONTRACT?.TYPE_CONTRACT?.['@CODE'] || 'Vergabe';
+  // Nettoyer les titres commençant par un numéro de tranche (ex: "9. Staffel...")
+  title = title.replace(/^\d+\.\s*/, '');
 
   return {
-    id:        'VERGABE-' + (hit._id || Math.random().toString(36).slice(2)),
-    title,
-    buyer,
+    id:        'VERGABE-' + noticeId,
+    title:     title || 'Sans titre',
+    buyer:     buyer || '',
+    desc:      desc || '',
     country:   'DE',
-    deadline,
-    published,
+    deadline:  deadline ? deadline.slice(0, 10) : null,
+    published: published || null,
     amount:    null,
-    url,
-    cpv,
-    type,
-    source:    'VERGABE',
     currency:  'EUR',
+    // URL directe vers l'annonce sur le VMP eVergabe NRW (portal 0)
+    url:       'https://www.evergabe.nrw.de/VMPSatellite/public/company/project/' + noticeId + '/de/overview',
+    pdfUrl:    null,
+    cpv:       cpv,
+    cpvFull:   [],
+    type:      scope === 'EU' ? 'EU' : 'National',
+    contractingRule: (contractingRule || '').toUpperCase(),
+    source:    'VERGABE',
     maxAmount: null,
   };
 }
 
+// ── Utilitaire : texte d'un sélecteur CSS dans un document XML ───────────
+function _xmlText(root, selector) {
+  try {
+    var el = root.querySelector(selector);
+    return el ? el.textContent.trim() : '';
+  } catch(e) { return ''; }
+}
 
-
-
+// ── Utilitaire : première date trouvée parmi une liste de noms de balises ──
+// Gère les préfixes XML (ex: cbc:IssueDate) via getElementsByTagName.
+// Retourne une date ISO (YYYY-MM-DD) ou '' si rien trouvé.
+function _xmlDate(doc, tagNames) {
+  for (var i = 0; i < tagNames.length; i++) {
+    var els = doc.getElementsByTagName(tagNames[i]);
+    if (els && els.length && els[0].textContent) {
+      var raw = els[0].textContent.trim();
+      // Extraire YYYY-MM-DD si format ISO, sinon normaliser D.M.YYYY
+      var iso = raw.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return iso[1] + '-' + iso[2] + '-' + iso[3];
+      var de = raw.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+      if (de) return de[3] + '-' + ('0'+de[2]).slice(-2) + '-' + ('0'+de[1]).slice(-2);
+    }
+  }
+  return '';
+}
 /* ============================================================
    TOAST QUEUE SYSTEM
    ============================================================ */
@@ -3242,7 +3529,7 @@ const ERROR_DOCS = {
   'TED':        { title: 'TED EU inaccessible',  msg: 'Le worker Cloudflare ne répond pas ou la clé API est expirée.', link: 'https://docs.ted.europa.eu/eforms/latest/reference/code-lists/cpv.html', label: 'Documentation TED EU API v3' },
   'BOAMP':      { title: 'BOAMP FR inaccessible',        msg: "L'API BOAMP est indisponible ou le réseau bloque la requête (CORS).", link: 'https://www.boamp.fr/api/explore/v2.1/console/', label: 'Console BOAMP API' },
   'TenderNed':  { title: 'TenderNed NL inaccessible', msg: 'Erreur API Pays-Bas.', link: 'https://www.tenderned.nl/info/swagger', label: 'Documentation TenderNed NL' },
-  'Vergabe NRW':{ title: 'Vergabe NRW inaccessible',  msg: 'API non accessible publiquement — en cours d\'intégration.', link: 'https://www.vergabe.nrw.de', label: 'Vergabe NRW' },
+  'Vergabe NRW':{ title: 'Vergabe NRW DE inaccessible', msg: 'Le worker Cloudflare ne peut pas accéder au ZIP Open Data.', link: 'https://open.nrw/dataset/ausschreibungen_des_vergabemarktplatzes_nrw_1587477165', label: 'Documentation Open Data NRW' },
   'TenderNed':  { title: 'TenderNed NL inaccessible',    msg: 'Les credentials HTTP Basic Auth ne sont pas encore configurés.', link: 'https://www.tenderned.nl/info/swagger/', label: 'Documentation TenderNed NL API' },
 };
 
@@ -3328,7 +3615,7 @@ function showSuccessToast(counts) {
   const SOURCE_NAMES = {
     ted:     isFr ? 'TED Europa'            : 'TED Europa',
     boamp:   isFr ? 'BOAMP France'          : 'BOAMP France',
-    vergabe: isFr ? 'Vergabe NRW Allemagne' : 'Vergabe NRW Germany',
+    vergabe: isFr ? 'Vergabe NRW DE' : 'Vergabe NRW DE',
     tender:  isFr ? 'TenderNed NL'    : 'TenderNed NL',
   };
 
@@ -3373,9 +3660,15 @@ function _showCopyToast() {
     <span class="settings-modal-title" id="settings-modal-title">
       <span class="ms" aria-hidden="true">tune</span> Settings
     </span>
-    <button class="drawer-close" onclick="closeDrawer()" aria-label="Fermer les réglages">
-      <span class="ms" aria-hidden="true">close</span>
-    </button>
+    <div class="settings-modal-header-actions">
+      <button class="btn-reset-cpv-header" id="btnResetCpv" type="button" onclick="resetCpvToDefault()" aria-label="Réinitialiser les codes CPV par défaut" title="Réinitialiser les codes CPV par défaut">
+        <span class="ms" aria-hidden="true">restart_alt</span>
+        <span id="btnResetCpvLabel">Réinitialiser</span>
+      </button>
+      <button class="drawer-close" type="button" onclick="closeDrawer()" aria-label="Fermer les réglages">
+        <span class="ms" aria-hidden="true">close</span>
+      </button>
+    </div>
   </div>
   <div class="settings-modal-body">
     <div class="drawer-body">
@@ -3394,54 +3687,36 @@ function _showCopyToast() {
       </div>
     </div>
 
-    <!-- Sources actives -->
-    <div>
-      <div class="drawer-section-title"><span class="ms ms-sm">language</span> Sources actives</div>
-      <div class="drawer-toggle-row">
-        <span class="drawer-toggle-label"><span class="fi fi-eu" style="border-radius:2px;flex-shrink:0"></span> <strong>TED EU</strong></span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="cfg-src-ted" checked onchange="saveSettings()">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="drawer-toggle-row">
-        <span class="drawer-toggle-label"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> <strong>BOAMP FR</strong></span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="cfg-src-boamp" checked onchange="saveSettings()">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="drawer-toggle-row">
-        <span class="drawer-toggle-label"><span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> <strong>TenderNed NL</strong></span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="cfg-src-tenderned" onchange="saveSettings()">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="drawer-toggle-row">
-        <span class="drawer-toggle-label" style="opacity:0.45"><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> <strong>Vergabe NRW</strong> <span style="font-size:10px;color:var(--muted)">(bientôt)</span></span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="cfg-src-vergabe" disabled>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
     <!-- API URLs -->
     <div>
       <div class="drawer-section-title"><span class="ms ms-sm">cable</span> URLs des APIs</div>
       <div class="drawer-field">
         <label class="drawer-label" for="cfg-ted-proxy">
-          Proxy TED <span class="source-pill">Cloudflare Worker</span>
+          Proxy TED EU <span class="source-pill">Cloudflare Worker</span>
         </label>
         <input type="url" class="drawer-input mono" id="cfg-ted-proxy" placeholder="https://...workers.dev">
         <div class="drawer-hint">URL du worker Cloudflare qui proxifie l'API TED.</div>
       </div>
       <div class="drawer-field">
+        <label class="drawer-label" for="cfg-tenderned-proxy">
+          Proxy TenderNed NL <span class="source-pill">Cloudflare Worker</span>
+        </label>
+        <input type="url" class="drawer-input mono" id="cfg-tenderned-proxy" placeholder="https://...workers.dev">
+        <div class="drawer-hint">URL du worker Cloudflare qui proxifie l'API TenderNed.</div>
+      </div>
+      <div class="drawer-field">
+        <label class="drawer-label" for="cfg-vergabe-proxy">
+          Proxy Vergabe NRW DE <span class="source-pill">Cloudflare Worker</span>
+        </label>
+        <input type="url" class="drawer-input mono" id="cfg-vergabe-proxy" placeholder="https://...workers.dev">
+        <div class="drawer-hint">URL du worker Cloudflare qui télécharge le ZIP Open Data NRW.</div>
+      </div>
+      <div class="drawer-field">
         <label class="drawer-label" for="cfg-boamp-url">
-          BOAMP <span class="source-pill">Direct</span>
+          BOAMP FR <span class="source-pill">Direct</span>
         </label>
         <input type="url" class="drawer-input mono" id="cfg-boamp-url" placeholder="https://www.boamp.fr/api/...">
+        <div class="drawer-hint">API publique BOAMP (accès direct, sans proxy).</div>
       </div>
     </div>
 
@@ -3450,30 +3725,10 @@ function _showCopyToast() {
       <div class="drawer-section-title"><span class="ms ms-sm">display_settings</span> Affichage</div>
       <div class="drawer-field">
         <label class="drawer-label" for="cfg-page-size">Résultats par page</label>
-        <input type="number" class="drawer-input" id="cfg-page-size" min="5" max="100" step="5" value="10">
+        <input type="number" class="drawer-input" id="cfg-page-size" min="10" max="100" step="10" value="10">
       </div>
     </div>
 
-  </div>
-  <div class="drawer-footer">
-    <button class="btn" onclick="resetSettings()">Réinitialiser</button>
-    <button class="btn primary" onclick="applyAndClose()"><span class="ms ms-sm">check</span> Appliquer</button>
-  </div>
-</div>
-  </div>
-  </div>
-  <div class="settings-modal-footer">
-    <button class="btn btn-ghost" onclick="closeDrawer()">Annuler</button>
-    <button class="btn btn-primary" onclick="applyAndClose()">
-      <span class="ms ms-sm" aria-hidden="true">check</span> Appliquer
-    </button>
-  </div>
-</div>
-
-
-
- onclick="resetSettings()">Réinitialiser</button>
-    <button class="btn primary" onclick="applyAndClose()"><span class="ms ms-sm">check</span> Appliquer</button>
   </div>
 </div>
   </div>
