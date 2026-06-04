@@ -370,7 +370,6 @@ body {
 /* -------- header -------- */
 header {
   padding: 20px 0 28px;
-  margin-bottom: 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -682,6 +681,18 @@ header::after {
 .csel-option .ms-sm {
   margin-right: 6px;
 }
+/* CPV select : tronque le libellé quand le dropdown est fermé pour qu'il
+   ne dépasse pas de la box du trigger. */
+#csel-cpv .csel-label {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#csel-cpv .csel-label .ms-sm { vertical-align: -3px; }
+#csel-cpv .csel-arrow { flex-shrink: 0; }
 .csel-trigger:hover { border-color: var(--accent); }
 .custom-select.open .csel-trigger { border-color: var(--accent); }
 .csel-arrow {
@@ -939,6 +950,9 @@ body.dark .card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
 .fav-inline { font-size: 16px; line-height: 1; flex-shrink: 0; }
 .fav-inline.unfav { color: #ccc; }
 .fav-inline.fav   { color: #f5c518; }
+/* Étoile non favorite : léger fond sombre (10%) au repos ; hover conservé */
+.icon-btn.fav-inline.unfav { background: rgba(0,0,0,0.10); }
+.icon-btn.fav-inline.unfav:hover { background: var(--bg); }
 .card-dates { font-size: 11px; color: var(--muted); }
 
 
@@ -1376,7 +1390,7 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
 .btn-vergabe:hover { background: #882345; color: #ffffff !important; text-decoration: none; }
 
 /* -------- dates supercondensed -------- */
-.card-dates { display: inline-flex; align-items: center; gap: 2px; }
+.card-dates { display: inline-flex; align-items: center; gap: 6px; }
 
 /* -------- titre extraexpanded -------- */
 /* card-title défini plus haut : 24px */
@@ -1392,13 +1406,23 @@ body.dark ::-webkit-scrollbar-thumb { background: #444; }
 #btnFavs.active { background: var(--amber-bg); color: var(--amber); border-color: var(--amber); }
 
 
-/* -------- dates extraexpanded gris -------- */
-.date-pub, .date-dead, .date-sep {
+/* -------- dates : pills pastel (mêmes dimensions que .mode-pill) -------- */
+.date-pub, .date-dead {
   font-family: var(--font-dates);
-  font-variation-settings: 'wdth' 151, 'wght' 400;
+  font-variation-settings: 'wdth' 151, 'wght' 600;
   font-size: 11px;
-  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  line-height: 1.4;
 }
+/* date-pub : pastel vert (comme la pill LIVE) — date-dead : pastel rouge */
+.date-pub  { background: var(--green-bg); color: var(--green); }
+.date-dead { background: rgba(229,72,77,0.15); color: #f06d6d; }
+.date-sep  { display: none; }
 
 /* -------- lang toggle -------- */
 .lang-toggle { min-width: 38px; text-align: center; }
@@ -1757,7 +1781,6 @@ body.dark .drawer-input { background: var(--bg); }
           <div class="csel-option" data-value="NL"><span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> Pays-Bas</div>
           <div class="csel-option" data-value="DE"><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Allemagne</div>
           <div class="csel-option" data-value="BE"><span class="fi fi-be" style="border-radius:2px;flex-shrink:0"></span> Belgique</div>
-          <div class="csel-option" data-value="EU"><span class="ms ms-sm">language</span> Autres EU</div>
         </div>
       </div>
       <div class="custom-select" id="csel-sort">
@@ -1791,7 +1814,6 @@ body.dark .drawer-input { background: var(--bg); }
           <div class="csel-option" data-value="BOAMP"><span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> BOAMP FR</div>
           <div class="csel-option" data-value="TENDERNED"><span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> TenderNed NL</div>
           <div class="csel-option" data-value="VERGABE"><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Vergabe NRW DE</div>
-          <div class="csel-option disabled" data-value="DTVP" disabled><span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> DTVP<span style="font-size:11px;opacity:0.5">(bientôt)</span></div>
         </div>
       </div>
       <button class="btn" id="btnFavs" onclick="toggleFavsOnly()" aria-label="Filtrer les favoris" title="Favoris" style="flex-shrink:0"><span id="favStar"><span class="ms">star</span></span></button>
@@ -1930,7 +1952,6 @@ function setLang(l) {
       'NL': '<span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> ' + (l === 'fr' ? 'Pays-Bas' : 'Netherlands'),
       'DE': '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> ' + (l === 'fr' ? 'Allemagne' : 'Germany'),
       'BE': '<span class="fi fi-be" style="border-radius:2px;flex-shrink:0"></span> ' + (l === 'fr' ? 'Belgique' : 'Belgium'),
-      'EU': '<span class="ms ms-sm">language</span> ' + (l === 'fr' ? 'Autres UE' : 'Other EU'),
     },
     'csel-sort': {
       'date': i18n.newest,
@@ -1949,7 +1970,6 @@ function setLang(l) {
       'BOAMP':     '<span class="fi fi-fr" style="border-radius:2px;flex-shrink:0"></span> ' + i18n.boampPortal,
       'VERGABE':   '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> Vergabe NRW',
       'TENDERNED': '<span class="fi fi-nl" style="border-radius:2px;flex-shrink:0"></span> ' + i18n.tenderNedPortal,
-      'DTVP':      '<span class="fi fi-de" style="border-radius:2px;flex-shrink:0"></span> DTVP ' + i18n.dtvpSoon,
     },
   };
 
@@ -2233,7 +2253,7 @@ async function fetchTED() {
     return data.notices.map(parseTED).filter(Boolean);
   } catch(e) {
     console.warn('[TED]', e.message);
-    showErrorToast('TED');
+    showErrorToast('TED', e);
     return [];
   }
 }
@@ -2273,7 +2293,7 @@ async function fetchBOAMP() {
     return data.results.map(parseBOAMP);
   } catch(e) {
     console.warn('[BOAMP]', e.message);
-    showErrorToast('BOAMP');
+    showErrorToast('BOAMP', e);
     return [];
   }
 }
@@ -2631,12 +2651,12 @@ function renderCard(t) {
     <div class="card-header-left">
       <div class="card-buyer-row">
         <div class="card-buyer-left">
-          ${favBtn}
           ${t.buyer ? `<span class="card-buyer">${t.buyer}</span>` : ''}
         </div>
         <div class="card-badges">
           <span class="badge badge-type">${localizedType}</span>
           <span class="badge badge-country" title="${countryLbl}">${flagHtml}</span>
+          ${favBtn}
           </div>
       </div>
       <div class="card-title">${t.title}</div>
@@ -2965,7 +2985,7 @@ async function fetchTenderNed() {
     return itItems.map(parseTenderNed).filter(Boolean);
   } catch(e) {
     console.warn('[TenderNed]', e.message);
-    showErrorToast('TenderNed');
+    showErrorToast('TenderNed', e);
     return [];
   }
 }
@@ -3435,7 +3455,7 @@ async function fetchVergabe() {
     return tenders;
   } catch(e) {
     console.warn('[Vergabe NRW]', e.message);
-    showErrorToast('Vergabe NRW');
+    showErrorToast('Vergabe NRW', e);
     return [];
   }
 }
@@ -3449,7 +3469,10 @@ function parseVergabeXml(xmlDoc, noticeId, scope, contractingRule) {
   var natRoot = xmlDoc.querySelector('NOTICE_NAT');
   if (natRoot) {
     title = _xmlText(natRoot, 'OBJECT_CONTRACT > TITLE_CONTRACT');
-    buyer = _xmlText(natRoot, 'CONTRACTING_BODY > ADDRESS_CONTRACTING_BODY > OFFICIALNAME');
+    // Auftraggeber / Ausschreibende Stelle : nom officiel de l'organisme.
+    // Plusieurs structures possibles selon le portail → on essaie en cascade.
+    buyer = _xmlText(natRoot, 'CONTRACTING_BODY ADDRESS_CONTRACTING_BODY OFFICIALNAME')
+         || _xmlAnyTag(natRoot, ['OFFICIALNAME', 'AUFTRAGGEBER', 'AUSSCHREIBENDE_STELLE', 'CONTRACTING_AUTHORITY']);
     deadline = _xmlText(natRoot, 'PROCEDURE > DATE_RECEIPT_TENDERS');
     desc = _xmlText(natRoot, 'OBJECT_CONTRACT > OBJECT_DESCR > SHORT_DESCR > P')
         || _xmlText(natRoot, 'OBJECT_CONTRACT > SHORT_DESCR > P');
@@ -3460,7 +3483,8 @@ function parseVergabeXml(xmlDoc, noticeId, scope, contractingRule) {
   } else {
     title = _xmlText(xmlDoc, 'ProcurementProject > Name')
          || _xmlText(xmlDoc, 'ProcurementProjectLot > ProcurementProject > Name');
-    buyer = _xmlText(xmlDoc, 'ContractingParty PartyName > Name');
+    buyer = _xmlText(xmlDoc, 'ContractingParty PartyName > Name')
+         || _xmlAnyTag(xmlDoc, ['OFFICIALNAME', 'AUFTRAGGEBER', 'AUSSCHREIBENDE_STELLE']);
     deadline = _xmlText(xmlDoc, 'TenderingProcess > TenderSubmissionDeadlinePeriod > EndDate');
     desc = _xmlText(xmlDoc, 'ProcurementProject > Description')
         || _xmlText(xmlDoc, 'ProcurementProjectLot > ProcurementProject > Description');
@@ -3505,6 +3529,18 @@ function _xmlText(root, selector) {
   } catch(e) { return ''; }
 }
 
+// ── Utilitaire : premier texte non vide parmi une liste de noms de balises ──
+// Utilise getElementsByTagName (robuste aux préfixes/namespaces XML).
+function _xmlAnyTag(root, names) {
+  for (var i = 0; i < names.length; i++) {
+    var els = root.getElementsByTagName(names[i]);
+    if (els && els.length && els[0].textContent && els[0].textContent.trim()) {
+      return els[0].textContent.trim();
+    }
+  }
+  return '';
+}
+
 // ── Utilitaire : première date trouvée parmi une liste de noms de balises ──
 // Gère les préfixes XML (ex: cbc:IssueDate) via getElementsByTagName.
 // Retourne une date ISO (YYYY-MM-DD) ou '' si rien trouvé.
@@ -3525,13 +3561,37 @@ function _xmlDate(doc, tagNames) {
 /* ============================================================
    TOAST QUEUE SYSTEM
    ============================================================ */
+// Métadonnées par source : nom affiché + lien de doc. Le message d'erreur, lui,
+// est construit dynamiquement à partir de l'erreur réelle (voir describeFetchError).
 const ERROR_DOCS = {
-  'TED':        { title: 'TED EU inaccessible',  msg: 'Le worker Cloudflare ne répond pas ou la clé API est expirée.', link: 'https://docs.ted.europa.eu/eforms/latest/reference/code-lists/cpv.html', label: 'Documentation TED EU API v3' },
-  'BOAMP':      { title: 'BOAMP FR inaccessible',        msg: "L'API BOAMP est indisponible ou le réseau bloque la requête (CORS).", link: 'https://www.boamp.fr/api/explore/v2.1/console/', label: 'Console BOAMP API' },
-  'TenderNed':  { title: 'TenderNed NL inaccessible', msg: 'Erreur API Pays-Bas.', link: 'https://www.tenderned.nl/info/swagger', label: 'Documentation TenderNed NL' },
-  'Vergabe NRW':{ title: 'Vergabe NRW DE inaccessible', msg: 'Le worker Cloudflare ne peut pas accéder au ZIP Open Data.', link: 'https://open.nrw/dataset/ausschreibungen_des_vergabemarktplatzes_nrw_1587477165', label: 'Documentation Open Data NRW' },
-  'TenderNed':  { title: 'TenderNed NL inaccessible',    msg: 'Les credentials HTTP Basic Auth ne sont pas encore configurés.', link: 'https://www.tenderned.nl/info/swagger/', label: 'Documentation TenderNed NL API' },
+  'TED':         { name: 'TED EU',        link: 'https://docs.ted.europa.eu/eforms/latest/reference/code-lists/cpv.html', label: 'Documentation TED EU API v3' },
+  'BOAMP':       { name: 'BOAMP FR',      link: 'https://www.boamp.fr/api/explore/v2.1/console/', label: 'Console BOAMP API' },
+  'TenderNed':   { name: 'TenderNed NL',  link: 'https://www.tenderned.nl/info/swagger/', label: 'Documentation TenderNed NL API' },
+  'Vergabe NRW': { name: 'Vergabe NRW DE', link: 'https://open.nrw/dataset/ausschreibungen_des_vergabemarktplatzes_nrw_1587477165', label: 'Documentation Open Data NRW' },
 };
+
+// ── Décrit dynamiquement une erreur de fetch pour l'afficher à l'utilisateur ──
+// Distingue : blocage CORS/réseau (TypeError), statut HTTP, payload vide, autre.
+function describeFetchError(error) {
+  const isFr = lang === 'fr';
+  const msg  = (error && error.message) || String(error || '');
+
+  if ((error instanceof TypeError) || /failed to fetch|networkerror|load failed|cors/i.test(msg)) {
+    return isFr
+      ? 'Requête bloquée (CORS ou réseau) depuis ' + location.origin + '.'
+      : 'Request blocked (CORS or network) from ' + location.origin + '.';
+  }
+  const http = msg.match(/HTTP\s+(\d+)/i);
+  if (http) {
+    return isFr
+      ? "L'API a renvoyé une réponse HTTP " + http[1] + '.'
+      : 'The API returned an HTTP ' + http[1] + ' response.';
+  }
+  if (/no notices|no results|no content|empty|not found/i.test(msg)) {
+    return isFr ? "Aucune donnée renvoyée par l'API." : 'The API returned no data.';
+  }
+  return (isFr ? 'Erreur : ' : 'Error: ') + (msg || (isFr ? 'inconnue' : 'unknown'));
+}
 
 const _toastQueue   = [];  // { type, title, msg, link, label, duration }
 let   _toastRunning = false;
@@ -3629,9 +3689,13 @@ function showSuccessToast(counts) {
   queueToast({ type: 'success', title: title, duration: 3000 });
 }
 
-function showErrorToast(source) {
-  const info = ERROR_DOCS[source] || { title: source + ' inaccessible', msg: 'Une erreur est survenue.', link: null, label: null };
-  queueToast({ type: 'error', title: info.title, msg: info.msg, link: info.link, label: info.label });
+function showErrorToast(source, error) {
+  const isFr = lang === 'fr';
+  const docs = ERROR_DOCS[source] || {};
+  const name = docs.name || source;
+  const title = name + (isFr ? ' inaccessible' : ' unavailable');
+  const msg = describeFetchError(error);
+  queueToast({ type: 'error', title, msg, link: docs.link || null, label: docs.label || null });
 }
 
 function hideErrorToast() {} // compat
