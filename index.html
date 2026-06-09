@@ -519,10 +519,22 @@ header::after {
   box-shadow: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
+/* Quand la toolbar est collée en haut : pleine largeur via left/right 0.
+   On passe en position fixed + on compense avec un placeholder. */
+/* Toolbar collée : pleine largeur viewport, contenu centré comme .shell (980px) */
 .toolbar.is-stuck {
   background: rgba(17, 22, 36, 0.58);
   border-bottom-color: rgba(255,255,255,0.14);
   box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+  border-radius: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 100%;
+  padding-left: max(20px, calc((100% - 940px) / 2));
+  padding-right: max(20px, calc((100% - 940px) / 2));
+  box-sizing: border-box;
 }
 .toolbar-search {
   position: relative;
@@ -690,6 +702,7 @@ header::after {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: left;
 }
 #csel-cpv .csel-label .ms-sm { vertical-align: -3px; }
 #csel-cpv .csel-arrow { flex-shrink: 0; }
@@ -722,7 +735,7 @@ header::after {
 .csel-option {
   font-family: var(--sans) !important;
   font-variation-settings: 'wdth' 151, 'wght' 400 !important;
-  font-size: 16px;
+  font-size: 14px;
   padding: 9px 14px;
   border-radius: calc(var(--radius-card) - 4px);
   cursor: pointer;
@@ -828,6 +841,9 @@ body.dark #btnFavs.active { background: var(--amber-bg) !important; color: var(-
   box-shadow: 0 4px 18px rgba(0,0,0,0.08);
   transform: translateY(-2px);
 }
+/* card favorite : bordure dorée permanente */
+.card.is-fav { border-color: #f5c518; }
+.card.is-fav:hover { border-color: #f5c518; box-shadow: 0 4px 18px rgba(245,197,24,0.15); }
 body.dark .card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
 
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -1314,6 +1330,8 @@ body.dark .ctrl-btn-mini:hover { background: rgba(255,255,255,0.18); }
   border-radius: var(--radius);
   letter-spacing: 0.04em;
 }
+/* mode-pill : padding asymétrique (gauche 4px, droite 8px) */
+.mode-pill { padding: 4px 8px 4px 4px !important; }
 .mode-live { background: var(--green-bg); color: var(--green); }
 .mode-demo { background: var(--amber-bg); color: var(--amber); }
 
@@ -1858,7 +1876,7 @@ const TRANSLATIONS = {
     noFavs: 'Aucun favori pour le moment.',
     addFavBtn: 'Ajouter une offre en favori dès maintenant',
     allPortals: 'Tous les portails',
-    tedPortal: 'TED UE',
+    tedPortal: 'TED EU',
     boampPortal: 'BOAMP FR',
     tenderNedPortal: 'TenderNed NL',
     vergabeSoon: '(bientot)',
@@ -1875,7 +1893,7 @@ const TRANSLATIONS = {
     darkAria: 'Basculer le mode sombre',
     darkTitle: 'Mode sombre',
     homeTitle: 'Retour a l\'accueil',
-    sourceTedBtn: 'TED UE',
+    sourceTedBtn: 'TED EU',
     sourceBoampBtn: 'BOAMP FR',
     sourceTenderNedBtn: 'TenderNed NL',
     sourceVergabeBtn: 'Vergabe NRW',
@@ -2100,9 +2118,32 @@ window.addEventListener('DOMContentLoaded', () => {
   fetchTenders();
 
   const toolbar = document.querySelector('.toolbar');
-  if (toolbar) {
+  const headerEl = document.querySelector('header');
+  if (toolbar && headerEl) {
+    // La toolbar passe en position:fixed quand le bas du header sort du viewport.
+    // Un placeholder invisible conserve l'espace pour éviter un saut de contenu.
+    let placeholder = null;
     const syncToolbarStickyState = () => {
-      toolbar.classList.toggle('is-stuck', window.scrollY > 2);
+      const headerBottom = headerEl.getBoundingClientRect().bottom;
+      const shouldStick = headerBottom <= 0;
+      const isStuck = toolbar.classList.contains('is-stuck');
+
+      if (shouldStick && !isStuck) {
+        // Créer le placeholder avec la hauteur actuelle de la toolbar
+        if (!placeholder) {
+          placeholder = document.createElement('div');
+          placeholder.style.height = toolbar.offsetHeight + 'px';
+          placeholder.style.flexShrink = '0';
+          toolbar.parentNode.insertBefore(placeholder, toolbar.nextSibling);
+        }
+        toolbar.classList.add('is-stuck');
+      } else if (!shouldStick && isStuck) {
+        toolbar.classList.remove('is-stuck');
+        if (placeholder) {
+          placeholder.remove();
+          placeholder = null;
+        }
+      }
     };
     syncToolbarStickyState();
     window.addEventListener('scroll', syncToolbarStickyState, { passive: true });
@@ -2188,7 +2229,13 @@ async function fetchTenders() {
       showInfoToast('Toutes les sources sont désactivées', 'Activez au moins une source dans les réglages ⚙');
     }
   } else {
+    // Mixer toutes les sources puis trier par date de publication (plus récentes d'abord)
     allTenders = [...tedItems, ...boampItems, ...vergabeItems, ...tenderNedItems];
+    allTenders.sort(function(a, b) {
+      var da = a.published || '0000';
+      var db = b.published || '0000';
+      return da > db ? -1 : da < db ? 1 : 0;
+    });
     setCache(allTenders);
     _buildTenderMap();
     isLive = true;
@@ -2220,12 +2267,17 @@ async function fetchTenders() {
 //    Seules les IPs des navigateurs utilisateurs fonctionnent.
 async function fetchTED() {
   if (!cfg.srcTed) return [];
-  const TED_KEY = 'dfec665b79524048be5ee175821da8d0';
-  const TED_API = 'https://api.ted.europa.eu/v3/notices/search';
-  const cpvList = cfg.cpv.split(',').map(c => c.trim()).filter(Boolean);
-  const cpvIn   = cpvList.length ? cpvList.join(', ') : '72000000';
+  // Passer par le worker Cloudflare proxy (CORS bloqué en direct depuis le navigateur)
+  const TED_API = cfg.tedProxy || 'https://lt-tender-finder.malcolm-arlaud.workers.dev';
+  // Codes CPV invalides rejetés par l'expert search TED (inexistants dans la nomenclature)
+  const TED_INVALID_CPV = ['62000000'];
+  const cpvList = cfg.cpv.split(',').map(c => c.trim())
+    .filter(Boolean)
+    .filter(c => TED_INVALID_CPV.indexOf(c) === -1);
+  // TED expert search : valeurs CPV séparées par un ESPACE dans IN() (pas de virgule)
+  const cpvIn   = cpvList.length ? cpvList.join(' ') : '72000000';
   const body = {
-    query: 'classification-cpv IN (' + cpvIn + ')',
+    query: 'classification-cpv IN (' + cpvIn + ') SORT BY publication-date DESC',
     fields: [
       'publication-number', 'notice-title', 'buyer-name', 'buyer-country',
       'notice-type', 'deadline', 'publication-date',
@@ -2240,11 +2292,7 @@ async function fetchTED() {
   try {
     const res = await fetch(TED_API, {
       method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Accept':        'application/json',
-        'Authorization': 'Bearer ' + TED_KEY,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2646,7 +2694,7 @@ function renderCard(t) {
 
   const safeId = (t.id || '').replace(/[^a-zA-Z0-9_-]/g, '-');
   return `
-<div class="card" id="card-${safeId}" onclick="openTenderDrawer('${safeId}')" style="cursor:pointer">
+<div class="card${isFav ? ' is-fav' : ''}" id="card-${safeId}" onclick="openTenderDrawer('${safeId}')" style="cursor:pointer">
   <div class="card-top">
     <div class="card-header-left">
       <div class="card-buyer-row">
@@ -2694,6 +2742,7 @@ function goPage(p) {
 /* ============================================================
    ACTIONS
    ============================================================ */
+// ── Ajoute / retire une offre des favoris (persistés dans localStorage) ──
 function toggleFav(id) {
   const idx = favorites.indexOf(id);
   if (idx >= 0) favorites.splice(idx, 1);
@@ -3384,6 +3433,7 @@ document.addEventListener('keydown', e => {
    VERGABE NRW — API publique, GET JSON, no auth
    Doc : https://daten.vergabe.nrw.de/rest/evergabe
    ============================================================ */
+// ── Récupère les offres Vergabe NRW DE (ZIP Open Data via worker + JSZip) ──
 async function fetchVergabe() {
   if (!cfg.srcVergabe) return [];
   // ── Fetch Vergabe NRW Open Data ────────────────────────────────────────
